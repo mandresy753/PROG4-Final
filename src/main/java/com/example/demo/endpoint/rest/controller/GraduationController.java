@@ -15,10 +15,10 @@ import org.springframework.web.bind.annotation.RestController;
 @AllArgsConstructor
 public class GraduationController {
 
-    private final GraduationService graduationService;
+  private final GraduationService graduationService;
 
-    @GetMapping
-    public List<Graduate> listGraduates(@RequestParam Track track) {
-        return graduationService.listGraduates(track);
-    }
+  @GetMapping
+  public List<Graduate> listGraduates(@RequestParam Track track) {
+    return graduationService.listGraduates(track);
+  }
 }
