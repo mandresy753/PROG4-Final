@@ -106,7 +106,8 @@ public class GradeAverageService {
             .distinct()
             .toList();
 
-    var courseAverages = courseOfferingIds.stream().map(id -> courseAverage(studentId, id)).toList();
+    var courseAverages =
+        courseOfferingIds.stream().map(id -> courseAverage(studentId, id)).toList();
 
     return buildYearAverage(courseAverages);
   }
@@ -127,7 +128,8 @@ public class GradeAverageService {
       }
 
       if (courseAverage.average() != null) {
-        weightedSum = weightedSum.add(courseAverage.average().multiply(BigDecimal.valueOf(credits)));
+        weightedSum =
+            weightedSum.add(courseAverage.average().multiply(BigDecimal.valueOf(credits)));
         creditsGraded += credits;
 
         if (courseAverage.average().compareTo(BigDecimal.TEN) >= 0) {
@@ -183,7 +185,8 @@ public class GradeAverageService {
 
       if (year.generalAverage() != null) {
         weightedSum =
-            weightedSum.add(year.generalAverage().multiply(BigDecimal.valueOf(year.totalCredits())));
+            weightedSum.add(
+                year.generalAverage().multiply(BigDecimal.valueOf(year.totalCredits())));
         creditsGraded += year.totalCredits();
       }
     }
