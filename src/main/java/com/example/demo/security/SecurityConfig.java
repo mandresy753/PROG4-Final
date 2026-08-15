@@ -64,6 +64,8 @@ public class SecurityConfig {
                     .access(gradeAuthorizationManager)
                     .requestMatchers(HttpMethod.GET, "/grades/**")
                     .access(selfOrStaffAuthorizationManager)
+                    .requestMatchers(HttpMethod.GET, "/averages/**")
+                    .access(selfOrStaffAuthorizationManager)
                     .anyRequest()
                     .authenticated())
         .sessionManagement(
