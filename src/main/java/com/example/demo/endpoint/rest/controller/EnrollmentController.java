@@ -1,6 +1,7 @@
 package com.example.demo.endpoint.rest.controller;
 
 import com.example.demo.dto.CreateEnrollmentRequest;
+import com.example.demo.enums.Track;
 import com.example.demo.model.Enrollment;
 import com.example.demo.service.EnrollmentService;
 import java.util.List;
@@ -27,6 +28,14 @@ public class EnrollmentController {
       return enrollmentService.findByGroupAndAcademicYear(groupId, academicYearId);
     }
     return List.of();
+  }
+
+  @GetMapping("/track")
+  public Track track(
+      @RequestParam UUID studentId, @RequestParam(required = false) UUID academicYearId) {
+    return academicYearId != null
+        ? enrollmentService.trackForYear(studentId, academicYearId)
+        : enrollmentService.currentTrack(studentId);
   }
 
   @PostMapping

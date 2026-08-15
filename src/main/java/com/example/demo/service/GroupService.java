@@ -28,7 +28,7 @@ public class GroupService {
   }
 
   public Group create(Group group) {
-    var entity = groupMapper.toEntity(new Group(null, group.reference()));
+    var entity = groupMapper.toEntity(new Group(null, group.reference(), group.track()));
 
     var saved = groupRepository.save(entity);
 
@@ -40,7 +40,7 @@ public class GroupService {
       throw ResourceNotFoundException.of("Group", id);
     }
 
-    var entity = groupMapper.toEntity(new Group(id, group.reference()));
+    var entity = groupMapper.toEntity(new Group(id, group.reference(), group.track()));
 
     var saved = groupRepository.save(entity);
 

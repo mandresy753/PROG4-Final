@@ -2,8 +2,10 @@ package com.example.demo.service;
 
 import com.example.demo.entity.JEnrollment;
 import com.example.demo.enums.Level;
+import com.example.demo.enums.Track;
 import com.example.demo.enums.UserRole;
 import com.example.demo.exception.BadRequestException;
+import com.example.demo.exception.ConflictException;
 import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.mapper.EnrollmentMapper;
 import com.example.demo.model.Enrollment;
@@ -12,6 +14,7 @@ import com.example.demo.repository.EnrollmentRepository;
 import com.example.demo.repository.GroupRepository;
 import com.example.demo.repository.UserRepository;
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -83,5 +86,36 @@ public class EnrollmentService {
     }
 
     enrollmentRepository.deleteById(id);
+  }
+
+  public Track trackForYear(UUID studentId, UUID academicYearId) {
+    var tracks =
+        enrollmentRepository.findByStudent_Id(studentId).stream()
+            .filter(e -> e.getAcademicYear().getId().equals(academicYearId))
+            .map(e -> e.getGroup().getTrack())
+            .distinct()
+            .toList();
+
+    if (tracks.isEmpty()) {
+      throw new BadRequestException(
+          "This student was not enrolled in this academic year: " + academicYearId);
+    }
+
+    if (tracks.size() > 1) {
+      throw new ConflictException(
+          "This student was enrolled in groups from different tracks ("
+              + tracks
+              + ") during this academic year: "
+              + academicYearId);
+    }
+
+    return tracks.get(0);
+  }
+
+  public Track currentTrack(UUID studentId) {
+    return enrollmentRepository.findByStudent_Id(studentId).stream()
+        .max(Comparator.comparing(JEnrollment::getStartDate))
+        .map(e -> e.getGroup().getTrack())
+        .orElseThrow(() -> new BadRequestException("This student has no enrollment"));
   }
 }
