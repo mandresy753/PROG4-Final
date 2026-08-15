@@ -5,7 +5,7 @@ import com.example.demo.enums.Track;
 import com.example.demo.enums.UserRole;
 import com.example.demo.exception.BadRequestException;
 import com.example.demo.mapper.UserMapper;
-import com.example.demo.model.report.Graduate;
+import com.example.demo.model.Graduate;
 import com.example.demo.repository.EnrollmentRepository;
 import com.example.demo.repository.UserRepository;
 import java.util.List;
