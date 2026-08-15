@@ -7,23 +7,23 @@ import org.springframework.stereotype.Component;
 @Component
 public class CourseMapper {
 
-    public Course toModel(JCourse entity) {
-        return Course.builder()
-                .id(entity.getId())
-                .ref(entity.getRef())
-                .title(entity.getTitle())
-                .creditCount(entity.getCreditCount())
-                .track(entity.getTrack())
-                .build();
-    }
+  public Course toModel(JCourse entity) {
+    return Course.builder()
+        .id(entity.getId())
+        .ref(entity.getRef())
+        .title(entity.getTitle())
+        .creditCount(entity.getCreditCount())
+        .track(entity.getTrack())
+        .build();
+  }
 
-    public JCourse toEntity(Course model) {
-        return JCourse.builder()
-                .id(model.id())
-                .ref(model.ref())
-                .title(model.title())
-                .creditCount(model.creditCount())
-                .track(model.track())
-                .build();
-    }
+  public JCourse toEntity(Course model) {
+    return JCourse.builder()
+        .id(model.id())
+        .ref(model.ref())
+        .title(model.title())
+        .creditCount(model.creditCount())
+        .track(model.track())
+        .build();
+  }
 }

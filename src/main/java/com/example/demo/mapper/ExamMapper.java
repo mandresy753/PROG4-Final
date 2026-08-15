@@ -9,23 +9,23 @@ import org.springframework.stereotype.Component;
 @AllArgsConstructor
 public class ExamMapper {
 
-    private final CourseOfferingMapper courseOfferingMapper;
+  private final CourseOfferingMapper courseOfferingMapper;
 
-    public Exam toModel(JExam entity) {
-        return Exam.builder()
-                .id(entity.getId())
-                .courseOffering(courseOfferingMapper.toModel(entity.getCourseOffering()))
-                .examDate(entity.getExamDate())
-                .coefficient(entity.getCoefficient())
-                .build();
-    }
+  public Exam toModel(JExam entity) {
+    return Exam.builder()
+        .id(entity.getId())
+        .courseOffering(courseOfferingMapper.toModel(entity.getCourseOffering()))
+        .examDate(entity.getExamDate())
+        .coefficient(entity.getCoefficient())
+        .build();
+  }
 
-    public JExam toEntity(Exam model) {
-        return JExam.builder()
-                .id(model.id())
-                .courseOffering(courseOfferingMapper.toEntity(model.courseOffering()))
-                .examDate(model.examDate())
-                .coefficient(model.coefficient())
-                .build();
-    }
+  public JExam toEntity(Exam model) {
+    return JExam.builder()
+        .id(model.id())
+        .courseOffering(courseOfferingMapper.toEntity(model.courseOffering()))
+        .examDate(model.examDate())
+        .coefficient(model.coefficient())
+        .build();
+  }
 }

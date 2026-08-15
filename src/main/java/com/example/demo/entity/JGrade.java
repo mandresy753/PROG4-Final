@@ -1,16 +1,14 @@
 package com.example.demo.entity;
 
 import jakarta.persistence.*;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.UUID;
-
 
 @Entity
 @Table(name = "grades")
@@ -21,27 +19,25 @@ import java.util.UUID;
 @Builder
 public class JGrade {
 
-    @Id
-    @GeneratedValue
-    private UUID id;
+  @Id @GeneratedValue private UUID id;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "exam_id", nullable = false)
-    private JExam exam;
+  @ManyToOne(optional = false)
+  @JoinColumn(name = "exam_id", nullable = false)
+  private JExam exam;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "student_id", nullable = false)
-    private JUser student;
+  @ManyToOne(optional = false)
+  @JoinColumn(name = "student_id", nullable = false)
+  private JUser student;
 
-    @Column(nullable = false, precision = 4, scale = 2)
-    private BigDecimal value;
+  @Column(nullable = false, precision = 4, scale = 2)
+  private BigDecimal value;
 
-    @Column(nullable = false)
-    private LocalDateTime entryDate;
+  @Column(nullable = false)
+  private LocalDateTime entryDate;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "entered_by_id", nullable = false)
-    private JUser enteredBy;
+  @ManyToOne(optional = false)
+  @JoinColumn(name = "entered_by_id", nullable = false)
+  private JUser enteredBy;
 
-    private String reason;
+  private String reason;
 }

@@ -9,22 +9,22 @@ import org.springframework.stereotype.Component;
 @AllArgsConstructor
 public class TeacherAssignmentMapper {
 
-    private final CourseOfferingMapper courseOfferingMapper;
-    private final UserMapper userMapper;
+  private final CourseOfferingMapper courseOfferingMapper;
+  private final UserMapper userMapper;
 
-    public TeacherAssignment toModel(JTeacherAssignment entity) {
-        return TeacherAssignment.builder()
-                .id(entity.getId())
-                .courseOffering(courseOfferingMapper.toModel(entity.getCourseOffering()))
-                .teacher(userMapper.toModel(entity.getTeacher()))
-                .build();
-    }
+  public TeacherAssignment toModel(JTeacherAssignment entity) {
+    return TeacherAssignment.builder()
+        .id(entity.getId())
+        .courseOffering(courseOfferingMapper.toModel(entity.getCourseOffering()))
+        .teacher(userMapper.toModel(entity.getTeacher()))
+        .build();
+  }
 
-    public JTeacherAssignment toEntity(TeacherAssignment model) {
-        return JTeacherAssignment.builder()
-                .id(model.id())
-                .courseOffering(courseOfferingMapper.toEntity(model.courseOffering()))
-                .teacher(userMapper.toEntity(model.teacher()))
-                .build();
-    }
+  public JTeacherAssignment toEntity(TeacherAssignment model) {
+    return JTeacherAssignment.builder()
+        .id(model.id())
+        .courseOffering(courseOfferingMapper.toEntity(model.courseOffering()))
+        .teacher(userMapper.toEntity(model.teacher()))
+        .build();
+  }
 }

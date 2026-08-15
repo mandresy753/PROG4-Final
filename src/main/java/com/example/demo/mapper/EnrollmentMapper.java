@@ -9,31 +9,31 @@ import org.springframework.stereotype.Component;
 @AllArgsConstructor
 public class EnrollmentMapper {
 
-    private final UserMapper userMapper;
-    private final GroupMapper groupMapper;
-    private final AcademicYearMapper academicYearMapper;
+  private final UserMapper userMapper;
+  private final GroupMapper groupMapper;
+  private final AcademicYearMapper academicYearMapper;
 
-    public Enrollment toModel(JEnrollment entity) {
-        return Enrollment.builder()
-                .id(entity.getId())
-                .student(userMapper.toModel(entity.getStudent()))
-                .group(groupMapper.toModel(entity.getGroup()))
-                .academicYear(academicYearMapper.toModel(entity.getAcademicYear()))
-                .level(entity.getLevel())
-                .startDate(entity.getStartDate())
-                .endDate(entity.getEndDate())
-                .build();
-    }
+  public Enrollment toModel(JEnrollment entity) {
+    return Enrollment.builder()
+        .id(entity.getId())
+        .student(userMapper.toModel(entity.getStudent()))
+        .group(groupMapper.toModel(entity.getGroup()))
+        .academicYear(academicYearMapper.toModel(entity.getAcademicYear()))
+        .level(entity.getLevel())
+        .startDate(entity.getStartDate())
+        .endDate(entity.getEndDate())
+        .build();
+  }
 
-    public JEnrollment toEntity(Enrollment model) {
-        return JEnrollment.builder()
-                .id(model.id())
-                .student(userMapper.toEntity(model.student()))
-                .group(groupMapper.toEntity(model.group()))
-                .academicYear(academicYearMapper.toEntity(model.academicYear()))
-                .level(model.level())
-                .startDate(model.startDate())
-                .endDate(model.endDate())
-                .build();
-    }
+  public JEnrollment toEntity(Enrollment model) {
+    return JEnrollment.builder()
+        .id(model.id())
+        .student(userMapper.toEntity(model.student()))
+        .group(groupMapper.toEntity(model.group()))
+        .academicYear(academicYearMapper.toEntity(model.academicYear()))
+        .level(model.level())
+        .startDate(model.startDate())
+        .endDate(model.endDate())
+        .build();
+  }
 }

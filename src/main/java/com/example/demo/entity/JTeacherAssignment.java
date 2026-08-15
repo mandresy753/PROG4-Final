@@ -1,21 +1,17 @@
 package com.example.demo.entity;
 
 import jakarta.persistence.*;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.UUID;
-
 @Entity
 @Table(
-        name = "teacher_assignments",
-        uniqueConstraints = @UniqueConstraint(
-                columnNames = {"course_offering_id", "teacher_id"}
-        )
-)
+    name = "teacher_assignments",
+    uniqueConstraints = @UniqueConstraint(columnNames = {"course_offering_id", "teacher_id"}))
 @Getter
 @Setter
 @NoArgsConstructor
@@ -23,15 +19,13 @@ import java.util.UUID;
 @Builder
 public class JTeacherAssignment {
 
-    @Id
-    @GeneratedValue
-    private UUID id;
+  @Id @GeneratedValue private UUID id;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "course_offering_id", nullable = false)
-    private JCourseOffering courseOffering;
+  @ManyToOne(optional = false)
+  @JoinColumn(name = "course_offering_id", nullable = false)
+  private JCourseOffering courseOffering;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "teacher_id", nullable = false)
-    private JUser teacher;
+  @ManyToOne(optional = false)
+  @JoinColumn(name = "teacher_id", nullable = false)
+  private JUser teacher;
 }

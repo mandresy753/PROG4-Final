@@ -1,14 +1,13 @@
 package com.example.demo.entity;
 
 import jakarta.persistence.*;
+import java.time.LocalDate;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.time.LocalDate;
-import java.util.UUID;
 
 @Entity
 @Table(name = "academic_years")
@@ -19,16 +18,14 @@ import java.util.UUID;
 @Builder
 public class JAcademicYear {
 
-    @Id
-    @GeneratedValue
-    private UUID id;
+  @Id @GeneratedValue private UUID id;
 
-    @Column(nullable = false, unique = true)
-    private String label;
+  @Column(nullable = false, unique = true)
+  private String label;
 
-    @Column(nullable = false)
-    private LocalDate startDate;
+  @Column(nullable = false)
+  private LocalDate startDate;
 
-    @Column(nullable = false)
-    private LocalDate endDate;
+  @Column(nullable = false)
+  private LocalDate endDate;
 }

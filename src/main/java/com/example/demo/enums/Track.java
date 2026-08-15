@@ -1,6 +1,6 @@
 package com.example.demo.enums;
 
 public enum Track {
-    EL,
-    TN
+  EL,
+  TN
 }
