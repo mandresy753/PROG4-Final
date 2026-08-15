@@ -22,10 +22,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class JwtService {
 
-  @Value("${security.jwt.secret-key:this-is-a-dev-only-secret-key-change-it-please-32bytes}")
+  @Value("${JWT_SECRET}")
   private String secretKey;
 
-  @Value("${security.jwt.expiration-ms:86400000}")
+  @Value("${JWT_EXPIRATION:86400000}")
   private long expirationMs;
 
   public String extractUsername(String token) {
