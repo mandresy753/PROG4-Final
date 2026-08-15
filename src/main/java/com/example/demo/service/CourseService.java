@@ -35,6 +35,7 @@ public class CourseService {
             .title(course.title())
             .creditCount(course.creditCount())
             .track(course.track())
+            .semester(course.semester())
             .build();
 
     var saved = courseRepository.save(courseMapper.toEntity(newCourse));
@@ -54,6 +55,7 @@ public class CourseService {
             .title(course.title())
             .creditCount(course.creditCount())
             .track(course.track())
+            .semester(course.semester())
             .build();
 
     var saved = courseRepository.save(courseMapper.toEntity(updatedCourse));
