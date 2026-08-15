@@ -1,6 +1,5 @@
 package com.example.demo.security;
 
-import com.example.demo.PojaGenerated;
 import com.example.demo.security.authorization.SelfOrStaffAuthorizationManager;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -14,7 +13,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-@PojaGenerated
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -59,6 +57,8 @@ public class SecurityConfig {
                     .requestMatchers(HttpMethod.DELETE, "/enrollments/**")
                     .hasRole("ADMIN")
                     .requestMatchers(HttpMethod.GET, "/enrollments")
+                    .access(selfOrStaffAuthorizationManager)
+                    .requestMatchers(HttpMethod.GET, "/enrollments/track")
                     .access(selfOrStaffAuthorizationManager)
                     .requestMatchers(HttpMethod.POST, "/grades/{examId}")
                     .access(gradeAuthorizationManager)
