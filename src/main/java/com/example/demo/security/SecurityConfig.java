@@ -68,7 +68,6 @@ public class SecurityConfig {
                     .access(selfOrStaffAuthorizationManager)
                     .requestMatchers(HttpMethod.GET, "/transcripts/**")
                     .access(selfOrStaffAuthorizationManager)
-      
                     .anyRequest()
                     .authenticated())
         .sessionManagement(
