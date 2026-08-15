@@ -23,6 +23,7 @@ public class CourseOfferingService {
   private final AcademicYearRepository academicYearRepository;
   private final GroupRepository groupRepository;
   private final CourseOfferingMapper courseOfferingMapper;
+  private final SemesterCreditPolicy semesterCreditPolicy;
 
   public List<CourseOffering> findAll() {
     return courseOfferingRepository.findAll().stream().map(courseOfferingMapper::toModel).toList();
@@ -50,9 +51,10 @@ public class CourseOfferingService {
   }
 
   public CourseOffering create(UUID courseId, UUID academicYearId, UUID groupId) {
-    if (!courseRepository.existsById(courseId)) {
-      throw ResourceNotFoundException.of("Course", courseId);
-    }
+    var course =
+        courseRepository
+            .findById(courseId)
+            .orElseThrow(() -> ResourceNotFoundException.of("Course", courseId));
 
     if (!academicYearRepository.existsById(academicYearId)) {
       throw ResourceNotFoundException.of("Academic year", academicYearId);
@@ -70,9 +72,14 @@ public class CourseOfferingService {
                   "This course is already assigned to this group for this academic year");
             });
 
+    var existingOfferings =
+        courseOfferingRepository.findByGroup_IdAndAcademicYear_Id(groupId, academicYearId);
+
+    semesterCreditPolicy.checkCanAssign(existingOfferings, course);
+
     var entity =
         JCourseOffering.builder()
-            .course(courseRepository.getReferenceById(courseId))
+            .course(course)
             .academicYear(academicYearRepository.getReferenceById(academicYearId))
             .group(groupRepository.getReferenceById(groupId))
             .build();

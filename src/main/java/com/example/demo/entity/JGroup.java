@@ -1,5 +1,6 @@
 package com.example.demo.entity;
 
+import com.example.demo.enums.Track;
 import jakarta.persistence.*;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -21,4 +22,8 @@ public class JGroup {
 
   @Column(nullable = false, unique = true)
   private String reference;
+
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
+  private Track track;
 }

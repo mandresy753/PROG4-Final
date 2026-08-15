@@ -1,5 +1,6 @@
 package com.example.demo.entity;
 
+import com.example.demo.enums.Semester;
 import com.example.demo.enums.Track;
 import jakarta.persistence.*;
 import java.util.UUID;
@@ -32,4 +33,8 @@ public class JCourse {
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
   private Track track;
+
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
+  private Semester semester;
 }
