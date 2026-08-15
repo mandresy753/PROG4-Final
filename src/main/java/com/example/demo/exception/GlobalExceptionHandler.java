@@ -1,6 +1,5 @@
 package com.example.demo.exception;
 
-import com.example.demo.PojaGenerated;
 import jakarta.servlet.http.HttpServletRequest;
 import java.time.Instant;
 import org.springframework.http.HttpStatus;
@@ -35,7 +34,11 @@ public class GlobalExceptionHandler {
       HttpStatus status, String message, HttpServletRequest request) {
     var body =
         new ErrorResponse(
-            Instant.now(), status.value(), status.getReasonPhrase(), message, request.getRequestURI());
+            Instant.now(),
+            status.value(),
+            status.getReasonPhrase(),
+            message,
+            request.getRequestURI());
     return ResponseEntity.status(status).body(body);
   }
 }
