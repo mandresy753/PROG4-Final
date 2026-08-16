@@ -40,6 +40,11 @@ public class ExamService {
       throw ResourceNotFoundException.of("Course offering", courseOfferingId);
     }
 
+    if (coefficient.compareTo(BigDecimal.ZERO) <= 0 || coefficient.compareTo(BigDecimal.ONE) > 0) {
+      throw new BadRequestException(
+          "The exam coefficient must be strictly greater than 0 and at most 1");
+    }
+
     var sumExisting =
         examRepository.findByCourseOffering_Id(courseOfferingId).stream()
             .map(JExam::getCoefficient)
@@ -60,15 +65,6 @@ public class ExamService {
             .build();
 
     return examMapper.toModel(examRepository.save(entity));
-  }
-
-  public boolean isCourseOfferingComplete(UUID courseOfferingId) {
-    var sum =
-        examRepository.findByCourseOffering_Id(courseOfferingId).stream()
-            .map(JExam::getCoefficient)
-            .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-    return sum.compareTo(BigDecimal.ONE) == 0;
   }
 
   public void delete(UUID id) {
