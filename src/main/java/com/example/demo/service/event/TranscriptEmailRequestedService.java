@@ -45,16 +45,16 @@ public class TranscriptEmailRequestedService implements Consumer<TranscriptEmail
   private Email toEmail(User student, File pdf) {
     try {
       return new Email(
-              new InternetAddress(student.email()),
-              List.of(),
-              List.of(),
-              "Votre relevé de notes",
-              "<p>Bonjour "
-                      + student.firstName()
-                      + " "
-                      + student.lastName()
-                      + ",</p><p>Vous trouverez votre relevé de notes en pièce jointe.</p>",
-              List.of(pdf));
+          new InternetAddress(student.email()),
+          List.of(),
+          List.of(),
+          "Votre relevé de notes",
+          "<p>Bonjour "
+              + student.firstName()
+              + " "
+              + student.lastName()
+              + ",</p><p>Vous trouverez votre relevé de notes en pièce jointe.</p>",
+          List.of(pdf));
     } catch (AddressException e) {
       throw new RuntimeException("Invalid recipient email address: " + student.email(), e);
     }
