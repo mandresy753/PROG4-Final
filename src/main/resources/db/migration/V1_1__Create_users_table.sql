@@ -1,11 +1,10 @@
-create table if not exists users
+CREATE TABLE IF NOT EXISTS users
 (
-    id         uuid
-        constraint users_pk primary key,
-    last_name  varchar not null,
-    first_name varchar not null,
-    email      varchar not null
-        constraint users_email_uk unique,
-    password   varchar not null,
-    role       varchar not null
-);
+    id         UUID PRIMARY KEY,
+    last_name  VARCHAR NOT NULL,
+    first_name VARCHAR NOT NULL,
+    email      VARCHAR NOT NULL UNIQUE,
+    password   VARCHAR NOT NULL,
+    role       VARCHAR NOT NULL,
+    reference  VARCHAR(20) NOT NULL UNIQUE
+    );
