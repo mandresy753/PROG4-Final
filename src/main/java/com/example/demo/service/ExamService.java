@@ -18,11 +18,17 @@ import org.springframework.stereotype.Service;
 @AllArgsConstructor
 public class ExamService {
 
+  private static final BigDecimal TOTAL_COEFFICIENT = BigDecimal.ONE;
+
   private final ExamRepository examRepository;
   private final CourseOfferingRepository courseOfferingRepository;
   private final ExamMapper examMapper;
 
   public List<Exam> findByCourseOffering(UUID courseOfferingId) {
+    if (!courseOfferingRepository.existsById(courseOfferingId)) {
+      throw ResourceNotFoundException.of("Course offering", courseOfferingId);
+    }
+
     return examRepository.findByCourseOffering_Id(courseOfferingId).stream()
         .map(examMapper::toModel)
         .toList();
@@ -35,36 +41,80 @@ public class ExamService {
         .orElseThrow(() -> ResourceNotFoundException.of("Exam", id));
   }
 
-  public Exam create(UUID courseOfferingId, LocalDateTime examDate, BigDecimal coefficient) {
+  public Exam create(
+      UUID courseOfferingId,
+      LocalDateTime examDate,
+      BigDecimal coefficient) {
+
     if (!courseOfferingRepository.existsById(courseOfferingId)) {
       throw ResourceNotFoundException.of("Course offering", courseOfferingId);
     }
 
-    if (coefficient.compareTo(BigDecimal.ZERO) <= 0 || coefficient.compareTo(BigDecimal.ONE) > 0) {
-      throw new BadRequestException(
-          "The exam coefficient must be strictly greater than 0 and at most 1");
-    }
+    validateCoefficient(coefficient);
 
-    var sumExisting =
+    BigDecimal existingCoefficientSum =
         examRepository.findByCourseOffering_Id(courseOfferingId).stream()
             .map(JExam::getCoefficient)
             .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-    if (sumExisting.add(coefficient).compareTo(BigDecimal.ONE) > 0) {
+    BigDecimal newCoefficientSum =
+        existingCoefficientSum.add(coefficient);
+
+    if (newCoefficientSum.compareTo(TOTAL_COEFFICIENT) > 0) {
       throw new BadRequestException(
-          "The sum of exam coefficients for this course offering would exceed 1 (current: "
-              + sumExisting
-              + ")");
+          "The sum of exam coefficients for this course offering cannot exceed 1. "
+              + "Current sum: "
+              + existingCoefficientSum
+              + ", new coefficient: "
+              + coefficient
+              + ", new sum: "
+              + newCoefficientSum);
     }
 
     var entity =
         JExam.builder()
-            .courseOffering(courseOfferingRepository.getReferenceById(courseOfferingId))
+            .courseOffering(
+                courseOfferingRepository.getReferenceById(courseOfferingId))
             .examDate(examDate)
             .coefficient(coefficient)
             .build();
 
     return examMapper.toModel(examRepository.save(entity));
+  }
+
+  public boolean isComplete(UUID courseOfferingId) {
+    if (!courseOfferingRepository.existsById(courseOfferingId)) {
+      throw ResourceNotFoundException.of("Course offering", courseOfferingId);
+    }
+
+    BigDecimal totalCoefficient =
+        examRepository.findByCourseOffering_Id(courseOfferingId).stream()
+            .map(JExam::getCoefficient)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+    return totalCoefficient.compareTo(TOTAL_COEFFICIENT) == 0;
+  }
+
+  public BigDecimal getCoefficientSum(UUID courseOfferingId) {
+    if (!courseOfferingRepository.existsById(courseOfferingId)) {
+      throw ResourceNotFoundException.of("Course offering", courseOfferingId);
+    }
+
+    return examRepository.findByCourseOffering_Id(courseOfferingId).stream()
+        .map(JExam::getCoefficient)
+        .reduce(BigDecimal.ZERO, BigDecimal::add);
+  }
+
+  private void validateCoefficient(BigDecimal coefficient) {
+    if (coefficient == null) {
+      throw new BadRequestException("The exam coefficient is required");
+    }
+
+    if (coefficient.compareTo(BigDecimal.ZERO) <= 0
+        || coefficient.compareTo(TOTAL_COEFFICIENT) > 0) {
+      throw new BadRequestException(
+          "The exam coefficient must be strictly greater than 0 and at most 1");
+    }
   }
 
   public void delete(UUID id) {
