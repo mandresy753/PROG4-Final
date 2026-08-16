@@ -12,15 +12,6 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.springframework.stereotype.Component;
 
-/**
- * Generates a single XLSX per promotion, with one sheet per track (EL, TN) so both are visible in
- * the same file while staying clearly distinct - as opposed to one file per track.
- *
- * <p>Uses a streaming ({@link SXSSFWorkbook}) workbook rather than the plain in-memory
- * XSSFWorkbook: rows are flushed to disk as they're written instead of being held as objects in the
- * JVM heap, so generating a large promotion's list doesn't scale the server's memory with the
- * student count.
- */
 @Component
 public class GraduateXlsxGenerator {
 

@@ -7,24 +7,12 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.query.Param;
 
-/**
- * Computes the ranked graduate list entirely in SQL instead of loading every student and every
- * grade into the JVM and averaging in Java. The previous approach issued one query per
- * course-offering per student (classic N+1) and did the weighting/ranking in a Java stream; on a
- * promotion with a large student body that pattern is what causes slow requests / gateway timeouts.
- * This single set-based query lets Postgres do the aggregation, and only ever returns the
- * (typically small) list of students who actually graduated.
- *
- * <p>Indexes supporting this query are created in V1_11__Add_performance_indexes.sql.
- */
 public interface GraduationQueryRepository extends Repository<JUser, UUID> {
 
   @Query(
       value =
           """
 WITH student_promotion AS (
-    -- The promotion is the academic year in which the student was first enrolled at L1,
-    -- independent of any group change afterwards.
     SELECT DISTINCT ON (e.student_id)
         e.student_id, ay.label AS promotion
     FROM enrollments e
@@ -48,9 +36,6 @@ eligible_students AS (
       AND st.track = :track
 ),
 student_offerings AS (
-    -- Every course-offering a student is responsible for, across every group/year
-    -- they were ever enrolled in (this is how a mid-year group change is handled:
-    -- both the old and the new group's offerings for that year are included).
     SELECT DISTINCT e.student_id, co.id AS course_offering_id, co.course_id
     FROM enrollments e
     JOIN course_offerings co
@@ -63,8 +48,6 @@ exam_totals AS (
     GROUP BY course_offering_id
 ),
 latest_grades AS (
-    -- Only the most recent grade per exam/student counts; older rows are kept for
-    -- history (reclamations, corrections) but must not be double-counted here.
     SELECT DISTINCT ON (g.exam_id, g.student_id)
         g.exam_id, g.student_id, g.value
     FROM grades g
