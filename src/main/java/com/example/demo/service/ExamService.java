@@ -8,7 +8,7 @@ import com.example.demo.model.Exam;
 import com.example.demo.repository.CourseOfferingRepository;
 import com.example.demo.repository.ExamRepository;
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -35,7 +35,7 @@ public class ExamService {
         .orElseThrow(() -> ResourceNotFoundException.of("Exam", id));
   }
 
-  public Exam create(UUID courseOfferingId, LocalDate examDate, BigDecimal coefficient) {
+  public Exam create(UUID courseOfferingId, LocalDateTime examDate, BigDecimal coefficient) {
     if (!courseOfferingRepository.existsById(courseOfferingId)) {
       throw ResourceNotFoundException.of("Course offering", courseOfferingId);
     }

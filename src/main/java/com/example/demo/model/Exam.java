@@ -1,10 +1,10 @@
 package com.example.demo.model;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.Builder;
 
 @Builder
 public record Exam(
-    UUID id, CourseOffering courseOffering, LocalDate examDate, BigDecimal coefficient) {}
+    UUID id, CourseOffering courseOffering, LocalDateTime examDate, BigDecimal coefficient) {}

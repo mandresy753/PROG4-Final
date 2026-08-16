@@ -2,7 +2,7 @@ package com.example.demo.entity;
 
 import jakarta.persistence.*;
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -26,7 +26,7 @@ public class JExam {
   private JCourseOffering courseOffering;
 
   @Column(nullable = false)
-  private LocalDate examDate;
+  private LocalDateTime examDate;
 
   @Column(nullable = false, precision = 4, scale = 3)
   private BigDecimal coefficient;
