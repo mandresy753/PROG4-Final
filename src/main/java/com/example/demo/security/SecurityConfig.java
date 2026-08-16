@@ -24,6 +24,7 @@ public class SecurityConfig {
   private final RestAuthenticationEntryPoint restAuthenticationEntryPoint;
   private final RestAccessDeniedHandler restAccessDeniedHandler;
   private final SelfOrStaffAuthorizationManager selfOrStaffAuthorizationManager;
+  private final GradeReadAuthorizationManager gradeReadAuthorizationManager;
   private final GradeAuthorizationManager gradeAuthorizationManager;
 
   private static final String[] ADMIN_ONLY_RESOURCES = {
@@ -63,7 +64,7 @@ public class SecurityConfig {
                     .requestMatchers(HttpMethod.POST, "/grades/{examId}")
                     .access(gradeAuthorizationManager)
                     .requestMatchers(HttpMethod.GET, "/grades/**")
-                    .access(selfOrStaffAuthorizationManager)
+                    .access(gradeReadAuthorizationManager)
                     .requestMatchers(HttpMethod.GET, "/averages/**")
                     .access(selfOrStaffAuthorizationManager)
                     .requestMatchers(HttpMethod.GET, "/transcripts/**")
