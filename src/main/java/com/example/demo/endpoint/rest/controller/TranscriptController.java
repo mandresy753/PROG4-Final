@@ -37,7 +37,7 @@ public class TranscriptController {
   @PostMapping("/{studentId}/send-email")
   public ResponseEntity<Void> sendByEmail(@PathVariable UUID studentId) {
     transcriptEmailEventProducer.accept(
-            List.of(TranscriptEmailRequested.builder().studentId(studentId).build()));
+        List.of(TranscriptEmailRequested.builder().studentId(studentId).build()));
 
     return ResponseEntity.accepted().build();
   }

@@ -20,37 +20,37 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class TranscriptEmailRequestedService implements Consumer<TranscriptEmailRequested> {
 
-    private static final String BUCKET_PREFIX = "transcripts/";
+  private static final String BUCKET_PREFIX = "transcripts/";
 
-    private final TranscriptService transcriptService;
-    private final TranscriptPdfGenerator transcriptPdfGenerator;
-    private final BucketComponent bucketComponent;
-    private final Mailer mailer;
+  private final TranscriptService transcriptService;
+  private final TranscriptPdfGenerator transcriptPdfGenerator;
+  private final BucketComponent bucketComponent;
+  private final Mailer mailer;
 
-    @Override
-    public void accept(TranscriptEmailRequested event) {
-        var transcript = transcriptService.fullTranscript(event.getStudentId());
-        var pdf = transcriptPdfGenerator.generate(transcript);
+  @Override
+  public void accept(TranscriptEmailRequested event) {
+    var transcript = transcriptService.fullTranscript(event.getStudentId());
+    var pdf = transcriptPdfGenerator.generate(transcript);
 
-        var bucketKey = BUCKET_PREFIX + event.getStudentId() + "-" + LocalDate.now() + ".pdf";
-        bucketComponent.upload(pdf, bucketKey);
+    var bucketKey = BUCKET_PREFIX + event.getStudentId() + "-" + LocalDate.now() + ".pdf";
+    bucketComponent.upload(pdf, bucketKey);
 
-        mailer.accept(toEmail(transcript.student().email(), pdf));
+    mailer.accept(toEmail(transcript.student().email(), pdf));
 
-        log.info("Transcript email sent for student {}", event.getStudentId());
+    log.info("Transcript email sent for student {}", event.getStudentId());
+  }
+
+  private Email toEmail(String recipient, java.io.File pdf) {
+    try {
+      return new Email(
+          new InternetAddress(recipient),
+          List.of(),
+          List.of(),
+          "Votre relevé de notes",
+          "<p>Bonjour,</p><p>Vous trouverez votre relevé de notes en pièce jointe.</p>",
+          List.of(pdf));
+    } catch (AddressException e) {
+      throw new RuntimeException("Invalid recipient email address: " + recipient, e);
     }
-
-    private Email toEmail(String recipient, java.io.File pdf) {
-        try {
-            return new Email(
-                    new InternetAddress(recipient),
-                    List.of(),
-                    List.of(),
-                    "Votre relevé de notes",
-                    "<p>Bonjour,</p><p>Vous trouverez votre relevé de notes en pièce jointe.</p>",
-                    List.of(pdf));
-        } catch (AddressException e) {
-            throw new RuntimeException("Invalid recipient email address: " + recipient, e);
-        }
-    }
+  }
 }
