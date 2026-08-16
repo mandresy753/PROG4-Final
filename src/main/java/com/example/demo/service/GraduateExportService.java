@@ -11,20 +11,20 @@ import org.springframework.stereotype.Service;
 @AllArgsConstructor
 public class GraduateExportService {
 
-    private static final String BUCKET_PREFIX = "graduates/";
-    private static final Duration DOWNLOAD_LINK_DURATION = Duration.ofMinutes(15);
+  private static final String BUCKET_PREFIX = "graduates/";
+  private static final Duration DOWNLOAD_LINK_DURATION = Duration.ofMinutes(15);
 
-    private final GraduationService graduationService;
-    private final GraduateXlsxGenerator graduateXlsxGenerator;
-    private final BucketComponent bucketComponent;
+  private final GraduationService graduationService;
+  private final GraduateXlsxGenerator graduateXlsxGenerator;
+  private final BucketComponent bucketComponent;
 
-    public String exportToXlsx(Track track) {
-        var graduates = graduationService.listGraduates(track);
-        var file = graduateXlsxGenerator.generate(graduates);
+  public String exportToXlsx(Track track) {
+    var graduates = graduationService.listGraduates(track);
+    var file = graduateXlsxGenerator.generate(graduates);
 
-        var bucketKey = BUCKET_PREFIX + track + "-" + LocalDate.now() + ".xlsx";
-        bucketComponent.upload(file, bucketKey);
+    var bucketKey = BUCKET_PREFIX + track + "-" + LocalDate.now() + ".xlsx";
+    bucketComponent.upload(file, bucketKey);
 
-        return bucketComponent.presign(bucketKey, DOWNLOAD_LINK_DURATION).toString();
-    }
+    return bucketComponent.presign(bucketKey, DOWNLOAD_LINK_DURATION).toString();
+  }
 }
