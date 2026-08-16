@@ -1,7 +1,9 @@
 package com.example.demo.repository;
 
 import com.example.demo.entity.JEnrollment;
+import com.example.demo.enums.Level;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -10,6 +12,9 @@ import org.springframework.stereotype.Repository;
 public interface EnrollmentRepository extends JpaRepository<JEnrollment, UUID> {
 
   List<JEnrollment> findByStudent_Id(UUID studentId);
+
+  Optional<JEnrollment> findFirstByStudent_IdAndLevelOrderByStartDateAsc(
+      UUID studentId, Level level);
 
   List<JEnrollment> findByStudent_IdOrderByStartDateAsc(UUID studentId);
 

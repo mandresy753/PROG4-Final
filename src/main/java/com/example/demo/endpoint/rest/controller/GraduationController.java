@@ -20,12 +20,12 @@ public class GraduationController {
   private final GraduateExportService graduateExportService;
 
   @GetMapping
-  public List<Graduate> listGraduates(@RequestParam Track track) {
-    return graduationService.listGraduates(track);
+  public List<Graduate> listGraduates(@RequestParam Track track, @RequestParam String promotion) {
+    return graduationService.listGraduates(track, promotion);
   }
 
   @GetMapping("/export")
-  public String exportGraduates(@RequestParam Track track) {
-    return graduateExportService.exportToXlsx(track);
+  public String exportGraduates(@RequestParam String promotion) {
+    return graduateExportService.exportToXlsx(promotion);
   }
 }

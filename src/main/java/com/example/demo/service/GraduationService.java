@@ -1,16 +1,14 @@
 package com.example.demo.service;
 
-import com.example.demo.entity.JUser;
 import com.example.demo.enums.Track;
 import com.example.demo.enums.UserRole;
-import com.example.demo.exception.BadRequestException;
-import com.example.demo.mapper.UserMapper;
 import com.example.demo.model.Graduate;
-import com.example.demo.repository.EnrollmentRepository;
-import com.example.demo.repository.UserRepository;
+import com.example.demo.model.User;
+import com.example.demo.repository.GraduateRankingRow;
+import com.example.demo.repository.GraduationQueryRepository;
+import java.util.EnumMap;
 import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
+import java.util.Map;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -21,51 +19,57 @@ public class GraduationService {
   public static final int EXPECTED_TOTAL_CREDITS =
       SemesterCreditPolicy.MAX_CREDITS_PER_SEMESTER * 6;
 
-  private final UserRepository userRepository;
-  private final EnrollmentRepository enrollmentRepository;
-  private final GradeAverageService gradeAverageService;
-  private final UserMapper userMapper;
+  private final GraduationQueryRepository graduationQueryRepository;
 
-  public List<Graduate> listGraduates(Track track) {
-    return userRepository.findByRole(UserRole.STUDENT).stream()
-        .map(student -> new StudentTrack(student, studentTrack(student.getId())))
-        .filter(studentTrack -> studentTrack.track() == track)
-        .map(studentTrack -> evaluate(studentTrack.student(), studentTrack.track()))
-        .filter(Graduate::graduated)
+  /**
+   * Lists the graduates of a given track (EL/TN) for a given promotion, ranked by overall average
+   * (best first). The promotion is the label of the academic year in which the student started
+   * their L1 - i.e. their entry cohort, independent of any group changes since.
+   *
+   * <p>The averaging, completeness check and ranking all happen in a single SQL query (see {@link
+   * GraduationQueryRepository#findRankedGraduates}) rather than in Java, so this stays fast
+   * regardless of how many students are enrolled overall - only the matching promotion/track is
+   * ever touched, and only graduated students are ever pulled back into the JVM.
+   */
+  public List<Graduate> listGraduates(Track track, String promotion) {
+    return graduationQueryRepository
+        .findRankedGraduates(track.name(), promotion, EXPECTED_TOTAL_CREDITS)
+        .stream()
+        .map(row -> toGraduate(row, track, promotion))
         .toList();
   }
 
-  private Graduate evaluate(JUser student, Track track) {
-    var overall = gradeAverageService.overallAverage(student.getId());
+  /**
+   * Lists both tracks of a promotion at once (one SQL query per track), for the combined EL+TN
+   * export. Kept as two queries rather than one because ranking is computed per track.
+   */
+  public Map<Track, List<Graduate>> listGraduatesByPromotion(String promotion) {
+    var byTrack = new EnumMap<Track, List<Graduate>>(Track.class);
+    for (Track track : Track.values()) {
+      byTrack.put(track, listGraduates(track, promotion));
+    }
+    return byTrack;
+  }
 
-    var graduated =
-        overall.complete()
-            && overall.totalCredits() >= EXPECTED_TOTAL_CREDITS
-            && overall.years().stream()
-                .allMatch(year -> year.validatedCredits() == year.totalCredits());
+  private Graduate toGraduate(GraduateRankingRow row, Track track, String promotion) {
+    var student =
+        User.builder()
+            .id(row.getId())
+            .reference(row.getReference())
+            .lastName(row.getLastName())
+            .firstName(row.getFirstName())
+            .email(row.getEmail())
+            .role(UserRole.STUDENT)
+            .build();
 
     return Graduate.builder()
-        .student(userMapper.toModel(student))
+        .student(student)
         .track(track)
-        .overallAverage(overall.overallAverage())
-        .totalCredits(overall.totalCredits())
-        .graduated(graduated)
+        .promotion(promotion)
+        .overallAverage(row.getOverallAverage())
+        .totalCredits(row.getTotalCredits())
+        .graduated(true)
+        .rank(row.getRank())
         .build();
   }
-
-  private Track studentTrack(UUID studentId) {
-    var tracks =
-        enrollmentRepository.findByStudent_Id(studentId).stream()
-            .map(enrollment -> enrollment.getGroup().getTrack())
-            .collect(Collectors.toSet());
-
-    if (tracks.size() != 1) {
-      throw new BadRequestException(
-          "Student " + studentId + " has an inconsistent or undefined track");
-    }
-
-    return tracks.iterator().next();
-  }
-
-  private record StudentTrack(JUser student, Track track) {}
 }

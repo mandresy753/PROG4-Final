@@ -10,6 +10,7 @@ public class UserMapper {
   public User toModel(JUser entity) {
     return User.builder()
         .id(entity.getId())
+        .reference(entity.getReference())
         .lastName(entity.getLastName())
         .firstName(entity.getFirstName())
         .email(entity.getEmail())
@@ -21,6 +22,7 @@ public class UserMapper {
   public JUser toEntity(User model) {
     return JUser.builder()
         .id(model.id())
+        .reference(model.reference())
         .lastName(model.lastName())
         .firstName(model.firstName())
         .email(model.email())

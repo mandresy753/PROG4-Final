@@ -1,9 +1,7 @@
 package com.example.demo.service;
 
-import com.example.demo.enums.Track;
 import com.example.demo.file.bucket.BucketComponent;
 import java.time.Duration;
-import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -18,11 +16,15 @@ public class GraduateExportService {
   private final GraduateXlsxGenerator graduateXlsxGenerator;
   private final BucketComponent bucketComponent;
 
-  public String exportToXlsx(Track track) {
-    var graduates = graduationService.listGraduates(track);
-    var file = graduateXlsxGenerator.generate(graduates);
+  /**
+   * Exports the full graduate list of a promotion (both EL and TN, on separate sheets of the same
+   * workbook) to S3 and returns a direct, presigned download link - no email involved.
+   */
+  public String exportToXlsx(String promotion) {
+    var graduatesByTrack = graduationService.listGraduatesByPromotion(promotion);
+    var file = graduateXlsxGenerator.generate(graduatesByTrack);
 
-    var bucketKey = BUCKET_PREFIX + track + "-" + LocalDate.now() + ".xlsx";
+    var bucketKey = BUCKET_PREFIX + promotion + ".xlsx";
     bucketComponent.upload(file, bucketKey);
 
     return bucketComponent.presign(bucketKey, DOWNLOAD_LINK_DURATION).toString();

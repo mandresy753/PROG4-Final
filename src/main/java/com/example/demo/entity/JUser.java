@@ -25,6 +25,9 @@ public class JUser implements UserDetails {
 
   @Id @GeneratedValue private UUID id;
 
+  @Column(nullable = false, unique = true)
+  private String reference;
+
   @Column(nullable = false)
   private String lastName;
 

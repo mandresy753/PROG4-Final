@@ -6,4 +6,10 @@ import lombok.Builder;
 
 @Builder
 public record Graduate(
-    User student, Track track, BigDecimal overallAverage, int totalCredits, boolean graduated) {}
+    User student,
+    Track track,
+    String promotion,
+    BigDecimal overallAverage,
+    int totalCredits,
+    boolean graduated,
+    int rank) {}

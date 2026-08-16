@@ -18,6 +18,7 @@ public class UserService {
   private final UserRepository userRepository;
   private final UserMapper userMapper;
   private final PasswordEncoder passwordEncoder;
+  private final UserReferenceGenerator userReferenceGenerator;
 
   public List<User> findAll() {
     return userRepository.findAll().stream()
@@ -43,6 +44,7 @@ public class UserService {
         userMapper.toEntity(
             new User(
                 null,
+                userReferenceGenerator.generate(user.role()),
                 user.lastName(),
                 user.firstName(),
                 user.email(),
@@ -67,7 +69,14 @@ public class UserService {
 
     var entity =
         userMapper.toEntity(
-            new User(id, user.lastName(), user.firstName(), user.email(), password, user.role()));
+            new User(
+                id,
+                existing.getReference(),
+                user.lastName(),
+                user.firstName(),
+                user.email(),
+                password,
+                user.role()));
 
     var saved = userRepository.save(entity);
     return withoutPassword(userMapper.toModel(saved));
@@ -82,6 +91,13 @@ public class UserService {
   }
 
   private User withoutPassword(User user) {
-    return new User(user.id(), user.lastName(), user.firstName(), user.email(), null, user.role());
+    return new User(
+        user.id(),
+        user.reference(),
+        user.lastName(),
+        user.firstName(),
+        user.email(),
+        null,
+        user.role());
   }
 }
