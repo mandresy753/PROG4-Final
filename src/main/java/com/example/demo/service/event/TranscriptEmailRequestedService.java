@@ -4,10 +4,12 @@ import com.example.demo.endpoint.event.model.TranscriptEmailRequested;
 import com.example.demo.file.bucket.BucketComponent;
 import com.example.demo.mail.Email;
 import com.example.demo.mail.Mailer;
+import com.example.demo.model.User;
 import com.example.demo.service.TranscriptPdfGenerator;
 import com.example.demo.service.TranscriptService;
 import jakarta.mail.internet.AddressException;
 import jakarta.mail.internet.InternetAddress;
+import java.io.File;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.function.Consumer;
@@ -35,22 +37,26 @@ public class TranscriptEmailRequestedService implements Consumer<TranscriptEmail
     var bucketKey = BUCKET_PREFIX + event.getStudentId() + "-" + LocalDate.now() + ".pdf";
     bucketComponent.upload(pdf, bucketKey);
 
-    mailer.accept(toEmail(transcript.student().email(), pdf));
+    mailer.accept(toEmail(transcript.student(), pdf));
 
     log.info("Transcript email sent for student {}", event.getStudentId());
   }
 
-  private Email toEmail(String recipient, java.io.File pdf) {
+  private Email toEmail(User student, File pdf) {
     try {
       return new Email(
-          new InternetAddress(recipient),
-          List.of(),
-          List.of(),
-          "Votre relevé de notes",
-          "<p>Bonjour,</p><p>Vous trouverez votre relevé de notes en pièce jointe.</p>",
-          List.of(pdf));
+              new InternetAddress(student.email()),
+              List.of(),
+              List.of(),
+              "Votre relevé de notes",
+              "<p>Bonjour "
+                      + student.firstName()
+                      + " "
+                      + student.lastName()
+                      + ",</p><p>Vous trouverez votre relevé de notes en pièce jointe.</p>",
+              List.of(pdf));
     } catch (AddressException e) {
-      throw new RuntimeException("Invalid recipient email address: " + recipient, e);
+      throw new RuntimeException("Invalid recipient email address: " + student.email(), e);
     }
   }
 }
