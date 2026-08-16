@@ -1,0 +1,56 @@
+package com.example.demo.service.event;
+
+import com.example.demo.endpoint.event.model.TranscriptEmailRequested;
+import com.example.demo.file.bucket.BucketComponent;
+import com.example.demo.mail.Email;
+import com.example.demo.mail.Mailer;
+import com.example.demo.service.TranscriptPdfGenerator;
+import com.example.demo.service.TranscriptService;
+import jakarta.mail.internet.AddressException;
+import jakarta.mail.internet.InternetAddress;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.function.Consumer;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+
+@Service
+@AllArgsConstructor
+@Slf4j
+public class TranscriptEmailRequestedService implements Consumer<TranscriptEmailRequested> {
+
+    private static final String BUCKET_PREFIX = "transcripts/";
+
+    private final TranscriptService transcriptService;
+    private final TranscriptPdfGenerator transcriptPdfGenerator;
+    private final BucketComponent bucketComponent;
+    private final Mailer mailer;
+
+    @Override
+    public void accept(TranscriptEmailRequested event) {
+        var transcript = transcriptService.fullTranscript(event.getStudentId());
+        var pdf = transcriptPdfGenerator.generate(transcript);
+
+        var bucketKey = BUCKET_PREFIX + event.getStudentId() + "-" + LocalDate.now() + ".pdf";
+        bucketComponent.upload(pdf, bucketKey);
+
+        mailer.accept(toEmail(transcript.student().email(), pdf));
+
+        log.info("Transcript email sent for student {}", event.getStudentId());
+    }
+
+    private Email toEmail(String recipient, java.io.File pdf) {
+        try {
+            return new Email(
+                    new InternetAddress(recipient),
+                    List.of(),
+                    List.of(),
+                    "Votre relevé de notes",
+                    "<p>Bonjour,</p><p>Vous trouverez votre relevé de notes en pièce jointe.</p>",
+                    List.of(pdf));
+        } catch (AddressException e) {
+            throw new RuntimeException("Invalid recipient email address: " + recipient, e);
+        }
+    }
+}
