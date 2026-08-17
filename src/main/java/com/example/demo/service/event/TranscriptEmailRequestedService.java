@@ -14,12 +14,10 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.function.Consumer;
 import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 @Service
 @AllArgsConstructor
-@Slf4j
 public class TranscriptEmailRequestedService implements Consumer<TranscriptEmailRequested> {
 
   private static final String BUCKET_PREFIX = "transcripts/";
@@ -40,8 +38,6 @@ public class TranscriptEmailRequestedService implements Consumer<TranscriptEmail
 
     var downloadUrl = bucketComponent.presign(bucketKey, DOWNLOAD_LINK_DURATION).toString();
     mailer.accept(toEmail(transcript.student(), downloadUrl));
-
-    log.info("Transcript email sent for student {}", event.getStudentId());
   }
 
   private Email toEmail(User student, String downloadUrl) {
