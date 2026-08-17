@@ -38,8 +38,7 @@ public class AuthViewController {
       Model model,
       HttpServletResponse response) {
     try {
-      authenticationManager.authenticate(
-          new UsernamePasswordAuthenticationToken(email, password));
+      authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
     } catch (Exception e) {
       model.addAttribute("error", "Email ou mot de passe incorrect");
       return "login";
