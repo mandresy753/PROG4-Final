@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
@@ -19,7 +20,7 @@ public class GraduateXlsxGenerator {
   private static final List<Track> GRADUATION_TRACKS = List.of(Track.EL, Track.TN);
 
   private static final List<String> HEADERS =
-      List.of("Matricule", "Nom", "Prénom", "Moyenne générale", "Rang");
+      List.of("Rang", "Matricule", "Nom", "Prénom", "Moyenne générale");
 
   private static final int STREAMING_WINDOW_SIZE = 200;
 
@@ -44,7 +45,6 @@ public class GraduateXlsxGenerator {
     } catch (IOException e) {
       throw new RuntimeException("Failed to generate graduates XLSX", e);
     } finally {
-
       workbook.dispose();
     }
   }
@@ -54,6 +54,7 @@ public class GraduateXlsxGenerator {
     font.setBold(true);
     var style = workbook.createCellStyle();
     style.setFont(font);
+    style.setAlignment(HorizontalAlignment.CENTER);
     return style;
   }
 
@@ -82,23 +83,23 @@ public class GraduateXlsxGenerator {
   private void writeRow(Row row, Graduate graduate, CellStyle averageStyle) {
     var student = graduate.student();
 
-    row.createCell(0).setCellValue(student.reference());
-    row.createCell(1).setCellValue(student.lastName());
-    row.createCell(2).setCellValue(student.firstName());
+    row.createCell(0).setCellValue(graduate.rank());
+    row.createCell(1).setCellValue(student.reference());
+    row.createCell(2).setCellValue(student.lastName());
 
     var averageCell = row.createCell(3);
     averageCell.setCellValue(
         graduate.overallAverage() == null ? 0 : graduate.overallAverage().doubleValue());
     averageCell.setCellStyle(averageStyle);
 
-    row.createCell(4).setCellValue(graduate.rank());
+    row.createCell(4).setCellValue(student.firstName());
   }
 
   private void applyColumnWidths(Sheet sheet) {
-    sheet.setColumnWidth(0, 4000);
+    sheet.setColumnWidth(0, 6000);
     sheet.setColumnWidth(1, 6000);
     sheet.setColumnWidth(2, 6000);
-    sheet.setColumnWidth(3, 5000);
-    sheet.setColumnWidth(4, 3000);
+    sheet.setColumnWidth(3, 6000);
+    sheet.setColumnWidth(4, 6000);
   }
 }
