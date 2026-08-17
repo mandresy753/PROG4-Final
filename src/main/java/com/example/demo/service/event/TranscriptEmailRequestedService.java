@@ -9,7 +9,7 @@ import com.example.demo.service.TranscriptPdfGenerator;
 import com.example.demo.service.TranscriptService;
 import jakarta.mail.internet.AddressException;
 import jakarta.mail.internet.InternetAddress;
-import java.io.File;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.function.Consumer;
@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 public class TranscriptEmailRequestedService implements Consumer<TranscriptEmailRequested> {
 
   private static final String BUCKET_PREFIX = "transcripts/";
+  private static final Duration DOWNLOAD_LINK_DURATION = Duration.ofMinutes(15);
 
   private final TranscriptService transcriptService;
   private final TranscriptPdfGenerator transcriptPdfGenerator;
@@ -37,24 +38,30 @@ public class TranscriptEmailRequestedService implements Consumer<TranscriptEmail
     var bucketKey = BUCKET_PREFIX + event.getStudentId() + "-" + LocalDate.now() + ".pdf";
     bucketComponent.upload(pdf, bucketKey);
 
-    mailer.accept(toEmail(transcript.student(), pdf));
+    var downloadUrl = bucketComponent.presign(bucketKey, DOWNLOAD_LINK_DURATION).toString();
+    mailer.accept(toEmail(transcript.student(), downloadUrl));
 
     log.info("Transcript email sent for student {}", event.getStudentId());
   }
 
-  private Email toEmail(User student, File pdf) {
+  private Email toEmail(User student, String downloadUrl) {
     try {
       return new Email(
-          new InternetAddress(student.email()),
-          List.of(),
-          List.of(),
-          "Votre relevé de notes",
-          "<p>Bonjour "
-              + student.firstName()
-              + " "
-              + student.lastName()
-              + ",</p><p>Vous trouverez votre relevé de notes en pièce jointe.</p>",
-          List.of(pdf));
+              new InternetAddress(student.email()),
+              List.of(),
+              List.of(),
+              "Relevé de note "+ student.reference(),
+              "<p>Bonjour "
+                      + student.firstName()
+                      + " "
+                      + student.lastName()
+                      + ",</p>"
+                      + "<p>Vous pouvez télécharger votre relevé de notes via le lien suivant "
+                      + "(valable 15 minutes) :</p>"
+                      + "<p><a href=\""
+                      + downloadUrl
+                      + "\">Télécharger mon relevé de notes (PDF)</a></p>",
+              List.of());
     } catch (AddressException e) {
       throw new RuntimeException("Invalid recipient email address: " + student.email(), e);
     }
