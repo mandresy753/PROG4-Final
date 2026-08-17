@@ -22,8 +22,8 @@ public interface CourseOfferingRepository extends JpaRepository<JCourseOffering,
       @Param("groupId") UUID groupId, @Param("academicYearId") UUID academicYearId);
 
   @Query(
-      "select co from JCourseOffering co join co.groups g "
-          + "where co.course.id = :courseId and co.academicYear.id = :academicYearId and g.id = :groupId")
+      "select co from JCourseOffering co join co.groups g where co.course.id = :courseId and"
+          + " co.academicYear.id = :academicYearId and g.id = :groupId")
   List<JCourseOffering> findByCourse_IdAndAcademicYear_IdAndGroupId(
       @Param("courseId") UUID courseId,
       @Param("academicYearId") UUID academicYearId,

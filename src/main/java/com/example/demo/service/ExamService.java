@@ -105,7 +105,8 @@ public class ExamService {
 
     if (coefficient.compareTo(BigDecimal.ZERO) <= 0
         || coefficient.compareTo(TOTAL_COEFFICIENT) > 0) {
-      throw new BadRequestException("The exam coefficient must be strictly greater than 0 and at most 1");
+      throw new BadRequestException(
+          "The exam coefficient must be strictly greater than 0 and at most 1");
     }
   }
 

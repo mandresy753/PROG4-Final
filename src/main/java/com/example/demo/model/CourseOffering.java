@@ -5,4 +5,5 @@ import java.util.UUID;
 import lombok.Builder;
 
 @Builder
-public record CourseOffering(UUID id, Course course, AcademicYear academicYear, List<Group> groups) {}
+public record CourseOffering(
+    UUID id, Course course, AcademicYear academicYear, List<Group> groups) {}

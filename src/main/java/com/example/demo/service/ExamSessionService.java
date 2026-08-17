@@ -43,7 +43,9 @@ public class ExamSessionService {
       UUID examId, LocalDateTime examDate, UUID teacherId, List<UUID> groupIds) {
 
     var exam =
-        examRepository.findById(examId).orElseThrow(() -> ResourceNotFoundException.of("Exam", examId));
+        examRepository
+            .findById(examId)
+            .orElseThrow(() -> ResourceNotFoundException.of("Exam", examId));
 
     if (groupIds == null || groupIds.isEmpty()) {
       throw new BadRequestException("At least one group is required for an exam session");
@@ -57,7 +59,9 @@ public class ExamSessionService {
     }
 
     var offeringGroupIds =
-        exam.getCourseOffering().getGroups().stream().map(JGroup::getId).collect(Collectors.toSet());
+        exam.getCourseOffering().getGroups().stream()
+            .map(JGroup::getId)
+            .collect(Collectors.toSet());
 
     if (!offeringGroupIds.containsAll(distinctGroupIds)) {
       throw new BadRequestException(
@@ -72,8 +76,7 @@ public class ExamSessionService {
             .collect(Collectors.toSet());
 
     if (distinctGroupIds.stream().anyMatch(alreadyCoveredGroupIds::contains)) {
-      throw new BadRequestException(
-          "One of these groups already has a session for this exam");
+      throw new BadRequestException("One of these groups already has a session for this exam");
     }
 
     var entity =
