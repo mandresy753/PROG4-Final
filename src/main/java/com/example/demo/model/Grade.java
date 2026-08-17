@@ -8,7 +8,7 @@ import lombok.Builder;
 @Builder
 public record Grade(
     UUID id,
-    Exam exam,
+    ExamSession examSession,
     User student,
     BigDecimal value,
     LocalDateTime entryDate,

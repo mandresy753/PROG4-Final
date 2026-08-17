@@ -22,8 +22,8 @@ public class JGrade {
   @Id @GeneratedValue private UUID id;
 
   @ManyToOne(optional = false)
-  @JoinColumn(name = "exam_id", nullable = false)
-  private JExam exam;
+  @JoinColumn(name = "exam_session_id", nullable = false)
+  private JExamSession examSession;
 
   @ManyToOne(optional = false)
   @JoinColumn(name = "student_id", nullable = false)

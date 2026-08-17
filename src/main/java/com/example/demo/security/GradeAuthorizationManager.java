@@ -20,14 +20,14 @@ public class GradeAuthorizationManager
   public AuthorizationDecision check(
       Supplier<Authentication> authentication, RequestAuthorizationContext context) {
 
-    String examId = context.getVariables().get("examId");
+    String examSessionId = context.getVariables().get("examSessionId");
 
-    if (examId == null) {
+    if (examSessionId == null) {
       return new AuthorizationDecision(false);
     }
 
     try {
-      UUID uuid = UUID.fromString(examId);
+      UUID uuid = UUID.fromString(examSessionId);
 
       boolean allowed = gradeAuthorizationService.canGrade(uuid, authentication.get());
 

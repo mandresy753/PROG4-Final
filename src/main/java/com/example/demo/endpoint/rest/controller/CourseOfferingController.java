@@ -36,7 +36,7 @@ public class CourseOfferingController {
   @PostMapping
   public CourseOffering create(@RequestBody CreateCourseOfferingRequest request) {
     return courseOfferingService.create(
-        request.courseId(), request.academicYearId(), request.groupId());
+        request.courseId(), request.academicYearId(), request.groupIds());
   }
 
   @DeleteMapping("/{id}")

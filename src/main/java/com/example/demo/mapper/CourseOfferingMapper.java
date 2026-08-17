@@ -18,7 +18,7 @@ public class CourseOfferingMapper {
         .id(entity.getId())
         .course(courseMapper.toModel(entity.getCourse()))
         .academicYear(academicYearMapper.toModel(entity.getAcademicYear()))
-        .group(groupMapper.toModel(entity.getGroup()))
+        .groups(entity.getGroups().stream().map(groupMapper::toModel).toList())
         .build();
   }
 
@@ -27,7 +27,12 @@ public class CourseOfferingMapper {
         .id(model.id())
         .course(courseMapper.toEntity(model.course()))
         .academicYear(academicYearMapper.toEntity(model.academicYear()))
-        .group(groupMapper.toEntity(model.group()))
+        .groups(
+            model.groups() == null
+                ? new java.util.HashSet<>()
+                : model.groups().stream()
+                    .map(groupMapper::toEntity)
+                    .collect(java.util.stream.Collectors.toSet()))
         .build();
   }
 }

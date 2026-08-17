@@ -27,8 +27,7 @@ public class ExamController {
 
   @PostMapping
   public Exam create(@RequestBody CreateExamRequest request) {
-    return examService.create(
-        request.courseOfferingId(), request.examDate(), request.coefficient());
+    return examService.create(request.courseOfferingId(), request.coefficient());
   }
 
   @DeleteMapping("/{id}")

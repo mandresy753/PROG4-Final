@@ -100,7 +100,7 @@ public class GradeAverageService {
             .flatMap(
                 groupId ->
                     courseOfferingRepository
-                        .findByGroup_IdAndAcademicYear_Id(groupId, academicYearId)
+                        .findByGroupIdAndAcademicYear_Id(groupId, academicYearId)
                         .stream())
             .map(offering -> offering.getId())
             .distinct()

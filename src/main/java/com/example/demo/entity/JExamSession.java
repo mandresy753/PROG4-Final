@@ -1,6 +1,7 @@
 package com.example.demo.entity;
 
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -11,31 +12,32 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "course_offerings")
+@Table(name = "exam_sessions")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class JCourseOffering {
+public class JExamSession {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private UUID id;
+  @Id @GeneratedValue private UUID id;
 
   @ManyToOne(optional = false)
-  @JoinColumn(name = "course_id", nullable = false)
-  private JCourse course;
+  @JoinColumn(name = "exam_id", nullable = false)
+  private JExam exam;
 
-  @ManyToOne(optional = false)
-  @JoinColumn(name = "academic_year_id", nullable = false)
-  private JAcademicYear academicYear;
+  @Column(nullable = false)
+  private LocalDateTime examDate;
+
+  @ManyToOne
+  @JoinColumn(name = "teacher_id")
+  private JUser teacher;
 
   @Builder.Default
   @ManyToMany
   @JoinTable(
-      name = "course_offering_groups",
-      joinColumns = @JoinColumn(name = "course_offering_id"),
+      name = "exam_session_groups",
+      joinColumns = @JoinColumn(name = "exam_session_id"),
       inverseJoinColumns = @JoinColumn(name = "group_id"))
   private Set<JGroup> groups = new HashSet<>();
 }

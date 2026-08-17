@@ -8,7 +8,6 @@ import com.example.demo.model.Exam;
 import com.example.demo.repository.CourseOfferingRepository;
 import com.example.demo.repository.ExamRepository;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -41,10 +40,7 @@ public class ExamService {
         .orElseThrow(() -> ResourceNotFoundException.of("Exam", id));
   }
 
-  public Exam create(
-      UUID courseOfferingId,
-      LocalDateTime examDate,
-      BigDecimal coefficient) {
+  public Exam create(UUID courseOfferingId, BigDecimal coefficient) {
 
     if (!courseOfferingRepository.existsById(courseOfferingId)) {
       throw ResourceNotFoundException.of("Course offering", courseOfferingId);
@@ -57,8 +53,7 @@ public class ExamService {
             .map(JExam::getCoefficient)
             .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-    BigDecimal newCoefficientSum =
-        existingCoefficientSum.add(coefficient);
+    BigDecimal newCoefficientSum = existingCoefficientSum.add(coefficient);
 
     if (newCoefficientSum.compareTo(TOTAL_COEFFICIENT) > 0) {
       throw new BadRequestException(
@@ -73,9 +68,7 @@ public class ExamService {
 
     var entity =
         JExam.builder()
-            .courseOffering(
-                courseOfferingRepository.getReferenceById(courseOfferingId))
-            .examDate(examDate)
+            .courseOffering(courseOfferingRepository.getReferenceById(courseOfferingId))
             .coefficient(coefficient)
             .build();
 
@@ -112,8 +105,7 @@ public class ExamService {
 
     if (coefficient.compareTo(BigDecimal.ZERO) <= 0
         || coefficient.compareTo(TOTAL_COEFFICIENT) > 0) {
-      throw new BadRequestException(
-          "The exam coefficient must be strictly greater than 0 and at most 1");
+      throw new BadRequestException("The exam coefficient must be strictly greater than 0 and at most 1");
     }
   }
 

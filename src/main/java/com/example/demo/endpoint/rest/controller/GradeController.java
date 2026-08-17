@@ -23,18 +23,18 @@ public class GradeController {
   }
 
   @GetMapping("/history")
-  public List<Grade> history(@RequestParam UUID examId, @RequestParam UUID studentId) {
+  public List<Grade> history(@RequestParam UUID examSessionId, @RequestParam UUID studentId) {
 
-    return gradeService.history(examId, studentId);
+    return gradeService.history(examSessionId, studentId);
   }
 
-  @PostMapping("/{examId}")
+  @PostMapping("/{examSessionId}")
   public Grade record(
-      @PathVariable UUID examId,
+      @PathVariable UUID examSessionId,
       @RequestBody RecordGradeRequest request,
       @AuthenticationPrincipal JUser me) {
 
     return gradeService.record(
-        examId, request.studentId(), me.getId(), request.value(), request.reason());
+        examSessionId, request.studentId(), me.getId(), request.value(), request.reason());
   }
 }

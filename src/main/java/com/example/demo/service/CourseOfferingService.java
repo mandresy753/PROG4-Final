@@ -1,6 +1,8 @@
 package com.example.demo.service;
 
 import com.example.demo.entity.JCourseOffering;
+import com.example.demo.entity.JGroup;
+import com.example.demo.exception.BadRequestException;
 import com.example.demo.exception.ConflictException;
 import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.mapper.CourseOfferingMapper;
@@ -9,7 +11,9 @@ import com.example.demo.repository.AcademicYearRepository;
 import com.example.demo.repository.CourseOfferingRepository;
 import com.example.demo.repository.CourseRepository;
 import com.example.demo.repository.GroupRepository;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -37,7 +41,7 @@ public class CourseOfferingService {
 
   public List<CourseOffering> findByGroupAndAcademicYear(UUID groupId, UUID academicYearId) {
     return courseOfferingRepository
-        .findByGroup_IdAndAcademicYear_Id(groupId, academicYearId)
+        .findByGroupIdAndAcademicYear_Id(groupId, academicYearId)
         .stream()
         .map(courseOfferingMapper::toModel)
         .toList();
@@ -50,7 +54,7 @@ public class CourseOfferingService {
         .orElseThrow(() -> ResourceNotFoundException.of("Course offering", id));
   }
 
-  public CourseOffering create(UUID courseId, UUID academicYearId, UUID groupId) {
+  public CourseOffering create(UUID courseId, UUID academicYearId, List<UUID> groupIds) {
     var course =
         courseRepository
             .findById(courseId)
@@ -60,28 +64,46 @@ public class CourseOfferingService {
       throw ResourceNotFoundException.of("Academic year", academicYearId);
     }
 
-    if (!groupRepository.existsById(groupId)) {
-      throw ResourceNotFoundException.of("Group", groupId);
+    if (groupIds == null || groupIds.isEmpty()) {
+      throw new BadRequestException("At least one group is required");
     }
 
-    courseOfferingRepository
-        .findByCourse_IdAndAcademicYear_IdAndGroup_Id(courseId, academicYearId, groupId)
-        .ifPresent(
-            existing -> {
-              throw new ConflictException(
-                  "This course is already assigned to this group for this academic year");
-            });
+    Set<UUID> distinctGroupIds = new HashSet<>(groupIds);
+    List<JGroup> groups = groupRepository.findAllById(distinctGroupIds);
 
-    var existingOfferings =
-        courseOfferingRepository.findByGroup_IdAndAcademicYear_Id(groupId, academicYearId);
+    if (groups.size() != distinctGroupIds.size()) {
+      throw ResourceNotFoundException.of("Group", groupIds.get(0));
+    }
 
-    semesterCreditPolicy.checkCanAssign(existingOfferings, course);
+    for (UUID groupId : distinctGroupIds) {
+      var alreadyAssigned =
+          courseOfferingRepository.findByCourse_IdAndAcademicYear_IdAndGroupId(
+              courseId, academicYearId, groupId);
+      if (!alreadyAssigned.isEmpty()) {
+        throw new ConflictException(
+            "This course is already assigned to group "
+                + groupId
+                + " for this academic year (via another offering)");
+      }
+    }
+
+    var existingOfferingsForCredits =
+        distinctGroupIds.stream()
+            .flatMap(
+                groupId ->
+                    courseOfferingRepository
+                        .findByGroupIdAndAcademicYear_Id(groupId, academicYearId)
+                        .stream())
+            .distinct()
+            .toList();
+
+    semesterCreditPolicy.checkCanAssign(existingOfferingsForCredits, course);
 
     var entity =
         JCourseOffering.builder()
             .course(course)
             .academicYear(academicYearRepository.getReferenceById(academicYearId))
-            .group(groupRepository.getReferenceById(groupId))
+            .groups(new HashSet<>(groups))
             .build();
 
     return courseOfferingMapper.toModel(courseOfferingRepository.save(entity));

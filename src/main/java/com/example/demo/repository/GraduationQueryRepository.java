@@ -36,10 +36,14 @@ eligible_students AS (
       AND st.track = :track
 ),
 student_offerings AS (
+    -- Option A: un course_offering peut être partagé par plusieurs groupes
+    -- (course_offering_groups), donc on passe par cette table de liaison plutôt
+    -- que par un group_id direct sur course_offerings.
     SELECT DISTINCT e.student_id, co.id AS course_offering_id, co.course_id
     FROM enrollments e
+    JOIN course_offering_groups cog ON cog.group_id = e.group_id
     JOIN course_offerings co
-      ON co.group_id = e.group_id AND co.academic_year_id = e.academic_year_id
+      ON co.id = cog.course_offering_id AND co.academic_year_id = e.academic_year_id
     WHERE e.student_id IN (SELECT student_id FROM eligible_students)
 ),
 exam_totals AS (
@@ -48,11 +52,15 @@ exam_totals AS (
     GROUP BY course_offering_id
 ),
 latest_grades AS (
-    SELECT DISTINCT ON (g.exam_id, g.student_id)
-        g.exam_id, g.student_id, g.value
+    -- Une note est liée à une exam_session (date/prof/groupe précis), mais le
+    -- coefficient et donc la moyenne du cours se calculent au niveau de l'exam
+    -- (exam_sessions.exam_id), peu importe quelle session l'étudiant a passée.
+    SELECT DISTINCT ON (es.exam_id, g.student_id)
+        es.exam_id, g.student_id, g.value
     FROM grades g
+    JOIN exam_sessions es ON es.id = g.exam_session_id
     WHERE g.student_id IN (SELECT student_id FROM eligible_students)
-    ORDER BY g.exam_id, g.student_id, g.entry_date DESC
+    ORDER BY es.exam_id, g.student_id, g.entry_date DESC
 ),
 course_stats AS (
     SELECT

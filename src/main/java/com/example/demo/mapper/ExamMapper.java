@@ -15,7 +15,6 @@ public class ExamMapper {
     return Exam.builder()
         .id(entity.getId())
         .courseOffering(courseOfferingMapper.toModel(entity.getCourseOffering()))
-        .examDate(entity.getExamDate())
         .coefficient(entity.getCoefficient())
         .build();
   }
@@ -24,7 +23,6 @@ public class ExamMapper {
     return JExam.builder()
         .id(model.id())
         .courseOffering(courseOfferingMapper.toEntity(model.courseOffering()))
-        .examDate(model.examDate())
         .coefficient(model.coefficient())
         .build();
   }

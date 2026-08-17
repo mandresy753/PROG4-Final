@@ -3,7 +3,7 @@ package com.example.demo.security;
 import com.example.demo.entity.JUser;
 import com.example.demo.enums.UserRole;
 import com.example.demo.exception.NotFoundException;
-import com.example.demo.repository.ExamRepository;
+import com.example.demo.repository.ExamSessionRepository;
 import com.example.demo.repository.TeacherAssignmentRepository;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -14,10 +14,10 @@ import org.springframework.stereotype.Component;
 @AllArgsConstructor
 public class GradeAuthorizationService {
 
-  private final ExamRepository examRepository;
+  private final ExamSessionRepository examSessionRepository;
   private final TeacherAssignmentRepository teacherAssignmentRepository;
 
-  public boolean canGrade(UUID examId, Authentication authentication) {
+  public boolean canGrade(UUID examSessionId, Authentication authentication) {
     var me = (JUser) authentication.getPrincipal();
 
     if (me.getRole() == UserRole.ADMIN) {
@@ -28,11 +28,13 @@ public class GradeAuthorizationService {
       return false;
     }
 
-    var exam =
-        examRepository.findById(examId).orElseThrow(() -> NotFoundException.of("Examen", examId));
+    var examSession =
+        examSessionRepository
+            .findById(examSessionId)
+            .orElseThrow(() -> NotFoundException.of("Séance d'examen", examSessionId));
 
     return teacherAssignmentRepository
-        .findByCourseOffering_Id(exam.getCourseOffering().getId())
+        .findByCourseOffering_Id(examSession.getExam().getCourseOffering().getId())
         .stream()
         .anyMatch(teacherAssignment -> teacherAssignment.getTeacher().getId().equals(me.getId()));
   }

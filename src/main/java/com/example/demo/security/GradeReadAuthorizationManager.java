@@ -2,7 +2,7 @@ package com.example.demo.security;
 
 import com.example.demo.entity.JUser;
 import com.example.demo.enums.UserRole;
-import com.example.demo.repository.ExamRepository;
+import com.example.demo.repository.ExamSessionRepository;
 import com.example.demo.repository.TeacherAssignmentRepository;
 import java.util.UUID;
 import java.util.function.Supplier;
@@ -16,13 +16,13 @@ import org.springframework.stereotype.Component;
 public class GradeReadAuthorizationManager
     implements AuthorizationManager<RequestAuthorizationContext> {
 
-  private final ExamRepository examRepository;
+  private final ExamSessionRepository examSessionRepository;
   private final TeacherAssignmentRepository teacherAssignmentRepository;
 
   public GradeReadAuthorizationManager(
-      ExamRepository examRepository,
+      ExamSessionRepository examSessionRepository,
       TeacherAssignmentRepository teacherAssignmentRepository) {
-    this.examRepository = examRepository;
+    this.examSessionRepository = examSessionRepository;
     this.teacherAssignmentRepository = teacherAssignmentRepository;
   }
 
@@ -52,9 +52,9 @@ public class GradeReadAuthorizationManager
       return new AuthorizationDecision(false);
     }
 
-    String examIdParam = context.getRequest().getParameter("examId");
-    if (examIdParam != null) {
-      return canTeacherAccessExam(me.getId(), examIdParam);
+    String examSessionIdParam = context.getRequest().getParameter("examSessionId");
+    if (examSessionIdParam != null) {
+      return canTeacherAccessExamSession(me.getId(), examSessionIdParam);
     }
 
     String courseOfferingIdParam = context.getRequest().getParameter("courseOfferingId");
@@ -65,14 +65,17 @@ public class GradeReadAuthorizationManager
     return canTeacherAccessCourseOffering(me.getId(), courseOfferingIdParam);
   }
 
-  private AuthorizationDecision canTeacherAccessExam(UUID teacherId, String examIdParam) {
+  private AuthorizationDecision canTeacherAccessExamSession(
+      UUID teacherId, String examSessionIdParam) {
     try {
-      UUID examId = UUID.fromString(examIdParam);
+      UUID examSessionId = UUID.fromString(examSessionIdParam);
       return new AuthorizationDecision(
-          examRepository
-              .findById(examId)
-              .map(exam -> canTeacherAccessCourseOfferingValue(
-                  teacherId, exam.getCourseOffering().getId()))
+          examSessionRepository
+              .findById(examSessionId)
+              .map(
+                  session ->
+                      canTeacherAccessCourseOfferingValue(
+                          teacherId, session.getExam().getCourseOffering().getId()))
               .orElse(false));
     } catch (IllegalArgumentException e) {
       return new AuthorizationDecision(false);
@@ -90,10 +93,8 @@ public class GradeReadAuthorizationManager
     }
   }
 
-  private boolean canTeacherAccessCourseOfferingValue(
-      UUID teacherId, UUID courseOfferingId) {
+  private boolean canTeacherAccessCourseOfferingValue(UUID teacherId, UUID courseOfferingId) {
     return teacherAssignmentRepository.findByCourseOffering_Id(courseOfferingId).stream()
-        .anyMatch(
-            assignment -> assignment.getTeacher().getId().equals(teacherId));
+        .anyMatch(assignment -> assignment.getTeacher().getId().equals(teacherId));
   }
 }

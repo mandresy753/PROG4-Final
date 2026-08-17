@@ -6,7 +6,7 @@ import com.example.demo.exception.BadRequestException;
 import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.mapper.GradeMapper;
 import com.example.demo.model.Grade;
-import com.example.demo.repository.ExamRepository;
+import com.example.demo.repository.ExamSessionRepository;
 import com.example.demo.repository.GradeRepository;
 import com.example.demo.repository.UserRepository;
 import java.math.BigDecimal;
@@ -22,13 +22,13 @@ import org.springframework.stereotype.Service;
 public class GradeService {
 
   private final GradeRepository gradeRepository;
-  private final ExamRepository examRepository;
+  private final ExamSessionRepository examSessionRepository;
   private final UserRepository userRepository;
   private final GradeMapper gradeMapper;
 
-  public List<Grade> history(UUID examId, UUID studentId) {
+  public List<Grade> history(UUID examSessionId, UUID studentId) {
     return gradeRepository
-        .findByExam_IdAndStudent_IdOrderByEntryDateDesc(examId, studentId)
+        .findByExamSession_IdAndStudent_IdOrderByEntryDateDesc(examSessionId, studentId)
         .stream()
         .map(gradeMapper::toModel)
         .toList();
@@ -38,7 +38,9 @@ public class GradeService {
     var all = gradeRepository.findByStudent_Id(studentId);
 
     var byExam =
-        all.stream().collect(java.util.stream.Collectors.groupingBy(g -> g.getExam().getId()));
+        all.stream()
+            .collect(
+                java.util.stream.Collectors.groupingBy(g -> g.getExamSession().getExam().getId()));
 
     return byExam.values().stream()
         .map(list -> list.stream().max(Comparator.comparing(JGrade::getEntryDate)).orElseThrow())
@@ -47,11 +49,11 @@ public class GradeService {
   }
 
   public Grade record(
-      UUID examId, UUID studentId, UUID enteredById, BigDecimal value, String reason) {
-    var exam =
-        examRepository
-            .findById(examId)
-            .orElseThrow(() -> ResourceNotFoundException.of("Exam", examId));
+      UUID examSessionId, UUID studentId, UUID enteredById, BigDecimal value, String reason) {
+    var examSession =
+        examSessionRepository
+            .findById(examSessionId)
+            .orElseThrow(() -> ResourceNotFoundException.of("Exam session", examSessionId));
 
     var student =
         userRepository
@@ -72,7 +74,7 @@ public class GradeService {
 
     var entity =
         JGrade.builder()
-            .exam(examRepository.getReferenceById(examId))
+            .examSession(examSessionRepository.getReferenceById(examSessionId))
             .student(userRepository.getReferenceById(studentId))
             .value(value)
             .entryDate(LocalDateTime.now())

@@ -61,7 +61,7 @@ public class SecurityConfig {
                     .access(selfOrStaffAuthorizationManager)
                     .requestMatchers(HttpMethod.GET, "/enrollments/track")
                     .access(selfOrStaffAuthorizationManager)
-                    .requestMatchers(HttpMethod.POST, "/grades/{examId}")
+                    .requestMatchers(HttpMethod.POST, "/grades/{examSessionId}")
                     .access(gradeAuthorizationManager)
                     .requestMatchers(HttpMethod.GET, "/grades/**")
                     .access(gradeReadAuthorizationManager)
