@@ -1,6 +1,5 @@
 package com.example.demo.security;
 
-import com.example.demo.entity.JUser;
 import com.example.demo.enums.UserRole;
 import com.example.demo.exception.NotFoundException;
 import com.example.demo.repository.ExamSessionRepository;
@@ -18,7 +17,7 @@ public class GradeAuthorizationService {
   private final TeacherAssignmentRepository teacherAssignmentRepository;
 
   public boolean canGrade(UUID examSessionId, Authentication authentication) {
-    var me = (JUser) authentication.getPrincipal();
+    var me = (AppUserPrincipal) authentication.getPrincipal();
 
     if (me.getRole() == UserRole.ADMIN) {
       return true;

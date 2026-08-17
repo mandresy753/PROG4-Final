@@ -5,6 +5,7 @@ import com.example.demo.dto.LoginResponse;
 import com.example.demo.entity.JUser;
 import com.example.demo.exception.UnauthorizedException;
 import com.example.demo.repository.UserRepository;
+import com.example.demo.security.AppUserPrincipal;
 import com.example.demo.security.JwtService;
 import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -37,7 +38,7 @@ public class AuthController {
             .findByEmail(request.email())
             .orElseThrow(() -> new UnauthorizedException("Invalid email or password"));
 
-    var token = jwtService.generateToken(user);
+    var token = jwtService.generateToken(AppUserPrincipal.of(user));
     return new LoginResponse(token, user.getFirstName(), user.getLastName(), user.getRole().name());
   }
 }

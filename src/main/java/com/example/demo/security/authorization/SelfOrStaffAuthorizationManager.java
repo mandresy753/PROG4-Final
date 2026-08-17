@@ -1,7 +1,7 @@
 package com.example.demo.security.authorization;
 
-import com.example.demo.entity.JUser;
 import com.example.demo.enums.UserRole;
+import com.example.demo.security.AppUserPrincipal;
 import java.util.function.Supplier;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
@@ -30,7 +30,7 @@ public class SelfOrStaffAuthorizationManager
   public AuthorizationDecision check(
       Supplier<Authentication> authenticationSupplier, RequestAuthorizationContext context) {
     var authentication = authenticationSupplier.get();
-    if (!(authentication.getPrincipal() instanceof JUser me)) {
+    if (!(authentication.getPrincipal() instanceof AppUserPrincipal me)) {
       return new AuthorizationDecision(false);
     }
 

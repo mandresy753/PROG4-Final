@@ -1,6 +1,5 @@
 package com.example.demo.security;
 
-import com.example.demo.entity.JUser;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -37,7 +36,7 @@ public class JwtService {
     return raw == null ? null : UUID.fromString(raw);
   }
 
-  public String generateToken(JUser user) {
+  public String generateToken(AppUserPrincipal user) {
     Map<String, Object> claims = new HashMap<>();
     claims.put("userId", user.getId().toString());
     claims.put("role", user.getRole().name());

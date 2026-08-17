@@ -1,6 +1,5 @@
 package com.example.demo.security;
 
-import com.example.demo.entity.JUser;
 import com.example.demo.enums.UserRole;
 import com.example.demo.repository.ExamSessionRepository;
 import com.example.demo.repository.TeacherAssignmentRepository;
@@ -31,7 +30,7 @@ public class GradeReadAuthorizationManager
       Supplier<Authentication> authenticationSupplier, RequestAuthorizationContext context) {
     Authentication authentication = authenticationSupplier.get();
 
-    if (!(authentication.getPrincipal() instanceof JUser me)) {
+    if (!(authentication.getPrincipal() instanceof AppUserPrincipal me)) {
       return new AuthorizationDecision(false);
     }
 

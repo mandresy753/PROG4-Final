@@ -1,8 +1,8 @@
 package com.example.demo.endpoint.rest.controller;
 
 import com.example.demo.dto.RecordGradeRequest;
-import com.example.demo.entity.JUser;
 import com.example.demo.model.Grade;
+import com.example.demo.security.AppUserPrincipal;
 import com.example.demo.service.GradeService;
 import java.util.List;
 import java.util.UUID;
@@ -32,7 +32,7 @@ public class GradeController {
   public Grade record(
       @PathVariable UUID examSessionId,
       @RequestBody RecordGradeRequest request,
-      @AuthenticationPrincipal JUser me) {
+      @AuthenticationPrincipal AppUserPrincipal me) {
 
     return gradeService.record(
         examSessionId, request.studentId(), me.getId(), request.value(), request.reason());

@@ -26,6 +26,7 @@ public class ApplicationConfig {
     return email ->
         userRepository
             .findByEmail(email)
+            .map(AppUserPrincipal::of)
             .orElseThrow(() -> new UsernameNotFoundException("Utilisateur introuvable: " + email));
   }
 
