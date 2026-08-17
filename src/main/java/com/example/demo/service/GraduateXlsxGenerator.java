@@ -27,13 +27,12 @@ public class GraduateXlsxGenerator {
   public File generate(Map<Track, List<Graduate>> graduatesByTrack) {
     var workbook = new SXSSFWorkbook(STREAMING_WINDOW_SIZE);
     try {
-      var headerStyle = createHeaderStyle(workbook);
-      var averageStyle = createAverageStyle(workbook);
+      var styles = new Styles(workbook);
 
       for (Track track : GRADUATION_TRACKS) {
         var sheet = workbook.createSheet(track.name());
-        writeHeader(sheet, headerStyle);
-        writeRows(sheet, graduatesByTrack.getOrDefault(track, List.of()), averageStyle);
+        writeHeader(sheet, styles);
+        writeRows(sheet, graduatesByTrack.getOrDefault(track, List.of()), styles);
         applyColumnWidths(sheet);
       }
 
@@ -49,38 +48,23 @@ public class GraduateXlsxGenerator {
     }
   }
 
-  private CellStyle createHeaderStyle(SXSSFWorkbook workbook) {
-    var font = workbook.createFont();
-    font.setBold(true);
-    var style = workbook.createCellStyle();
-    style.setFont(font);
-    style.setAlignment(HorizontalAlignment.CENTER);
-    return style;
-  }
-
-  private CellStyle createAverageStyle(SXSSFWorkbook workbook) {
-    var style = workbook.createCellStyle();
-    style.setDataFormat(workbook.createDataFormat().getFormat("0.00"));
-    return style;
-  }
-
-  private void writeHeader(Sheet sheet, CellStyle headerStyle) {
+  private void writeHeader(Sheet sheet, Styles styles) {
     var header = sheet.createRow(0);
     for (int i = 0; i < HEADERS.size(); i++) {
       var cell = header.createCell(i);
       cell.setCellValue(HEADERS.get(i));
-      cell.setCellStyle(headerStyle);
+      cell.setCellStyle(styles.header());
     }
     sheet.createFreezePane(0, 1);
   }
 
-  private void writeRows(Sheet sheet, List<Graduate> graduates, CellStyle averageStyle) {
+  private void writeRows(Sheet sheet, List<Graduate> graduates, Styles styles) {
     for (int i = 0; i < graduates.size(); i++) {
-      writeRow(sheet.createRow(i + 1), graduates.get(i), averageStyle);
+      writeRow(sheet.createRow(i + 1), graduates.get(i), styles);
     }
   }
 
-  private void writeRow(Row row, Graduate graduate, CellStyle averageStyle) {
+  private void writeRow(Row row, Graduate graduate, Styles styles) {
     var student = graduate.student();
 
     row.createCell(0).setCellValue(graduate.rank());
@@ -90,9 +74,13 @@ public class GraduateXlsxGenerator {
     var averageCell = row.createCell(3);
     averageCell.setCellValue(
         graduate.overallAverage() == null ? 0 : graduate.overallAverage().doubleValue());
-    averageCell.setCellStyle(averageStyle);
+    averageCell.setCellStyle(styles.average());
 
-    row.createCell(4).setCellValue(student.firstName());
+    row.createCell(4).setCellValue(graduate.rank());
+
+    for (int col : new int[] {0, 1, 2, 4}) {
+      row.getCell(col).setCellStyle(styles.data());
+    }
   }
 
   private void applyColumnWidths(Sheet sheet) {
@@ -101,5 +89,39 @@ public class GraduateXlsxGenerator {
     sheet.setColumnWidth(2, 6000);
     sheet.setColumnWidth(3, 6000);
     sheet.setColumnWidth(4, 6000);
+  }
+
+  private static final class Styles {
+    private final CellStyle header;
+    private final CellStyle data;
+    private final CellStyle average;
+
+    Styles(SXSSFWorkbook workbook) {
+      var boldFont = workbook.createFont();
+      boldFont.setBold(true);
+
+      header = workbook.createCellStyle();
+      header.setFont(boldFont);
+      header.setAlignment(HorizontalAlignment.CENTER);
+
+      data = workbook.createCellStyle();
+      data.setAlignment(HorizontalAlignment.CENTER);
+
+      average = workbook.createCellStyle();
+      average.setAlignment(HorizontalAlignment.CENTER);
+      average.setDataFormat(workbook.createDataFormat().getFormat("0.00"));
+    }
+
+    CellStyle header() {
+      return header;
+    }
+
+    CellStyle data() {
+      return data;
+    }
+
+    CellStyle average() {
+      return average;
+    }
   }
 }
