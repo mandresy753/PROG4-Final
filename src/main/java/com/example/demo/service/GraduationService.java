@@ -21,6 +21,8 @@ public class GraduationService {
   public static final int EXPECTED_TOTAL_CREDITS =
       SemesterCreditPolicy.MAX_CREDITS_PER_SEMESTER * 6;
 
+  private static final List<Track> GRADUATION_TRACKS = List.of(Track.EL, Track.TN);
+
   private final GraduationQueryRepository graduationQueryRepository;
   private final EnrollmentRepository enrollmentRepository;
 
@@ -39,7 +41,7 @@ public class GraduationService {
 
   public Map<Track, List<Graduate>> listGraduatesByPromotion(String promotion) {
     var byTrack = new EnumMap<Track, List<Graduate>>(Track.class);
-    for (Track track : Track.values()) {
+    for (Track track : GRADUATION_TRACKS) {
       byTrack.put(track, listGraduates(track, promotion));
     }
     return byTrack;
