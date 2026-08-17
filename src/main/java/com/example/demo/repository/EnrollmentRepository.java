@@ -16,7 +16,7 @@ public interface EnrollmentRepository extends JpaRepository<JEnrollment, UUID> {
   List<JEnrollment> findByStudent_Id(UUID studentId);
 
   Optional<JEnrollment> findFirstByStudent_IdAndLevelOrderByStartDateAsc(
-          UUID studentId, Level level);
+      UUID studentId, Level level);
 
   List<JEnrollment> findByStudent_IdOrderByStartDateAsc(UUID studentId);
 
@@ -25,12 +25,12 @@ public interface EnrollmentRepository extends JpaRepository<JEnrollment, UUID> {
   List<JEnrollment> findByAcademicYear_Id(UUID academicYearId);
 
   @Query(
-          """
-          SELECT DISTINCT e.academicYear.label
-          FROM JEnrollment e
-          WHERE e.level = :level
-          ORDER BY e.academicYear.label DESC
-          """)
+      """
+      SELECT DISTINCT e.academicYear.label
+      FROM JEnrollment e
+      WHERE e.level = :level
+      ORDER BY e.academicYear.label DESC
+      """)
   List<String> findDistinctAcademicYear_LabelByLevelOrderByAcademicYear_LabelDesc(
-          @Param("level") Level level);
+      @Param("level") Level level);
 }
