@@ -9,13 +9,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-/**
- * Adapte un {@link JUser} au contrat {@link UserDetails} attendu par Spring Security.
- *
- * <p>Cette classe vit uniquement dans {@code security/} : c'est elle, et non l'entity JPA, qui
- * porte la notion de "principal authentifié" (authorities, statut du compte, etc.). {@link JUser}
- * reste une entity de persistance pure, sans dépendance à Spring Security.
- */
 public class AppUserPrincipal implements UserDetails {
 
   private final UUID id;

@@ -11,7 +11,9 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 @EnableWebSecurity
@@ -38,11 +40,16 @@ public class SecurityConfig {
 
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    var loginEntryPoint = new LoginUrlAuthenticationEntryPoint("/login");
+    var promotionsMatcher = new AntPathRequestMatcher("/promotions/**");
+
     http.csrf(csrf -> csrf.disable())
         .authorizeHttpRequests(
             auth ->
-                auth.requestMatchers("/auth/**", "/ping", "/health/**")
+                auth.requestMatchers("/auth/**", "/ping", "/health/**", "/login", "/css/**")
                     .permitAll()
+                    .requestMatchers("/promotions/**")
+                    .hasRole("ADMIN")
                     .requestMatchers(HttpMethod.GET, ADMIN_ONLY_RESOURCES)
                     .authenticated()
                     .requestMatchers(HttpMethod.POST, ADMIN_ONLY_RESOURCES)
@@ -77,6 +84,10 @@ public class SecurityConfig {
         .exceptionHandling(
             handling ->
                 handling
+                    .defaultAuthenticationEntryPointFor(loginEntryPoint, promotionsMatcher)
+                    .defaultAccessDeniedHandlerFor(
+                        (request, response, ex) -> response.sendRedirect("/login"),
+                        promotionsMatcher)
                     .authenticationEntryPoint(restAuthenticationEntryPoint)
                     .accessDeniedHandler(restAccessDeniedHandler))
         .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

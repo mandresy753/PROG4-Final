@@ -13,11 +13,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-/**
- * Emission/validation des JWT. La cle et la duree de validite viennent de la config
- * (application.properties / variables d'environnement poja), avec des valeurs par defaut pour ne
- * pas bloquer en local/test.
- */
 @Service
 public class JwtService {
 

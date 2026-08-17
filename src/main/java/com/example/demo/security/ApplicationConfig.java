@@ -1,6 +1,5 @@
 package com.example.demo.security;
 
-import com.example.demo.PojaGenerated;
 import com.example.demo.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -14,7 +13,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-@PojaGenerated
 @Configuration
 @AllArgsConstructor
 public class ApplicationConfig {

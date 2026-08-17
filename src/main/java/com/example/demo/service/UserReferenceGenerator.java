@@ -5,12 +5,6 @@ import com.example.demo.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
-/**
- * Generates the business identifier (matricule) shown to users, distinct from the internal UUID
- * primary key. Format: <role prefix><4-digit sequence>, e.g. STD0001, TCH0012, ADM0003. The
- * sequence is scoped per role prefix and derived from the highest existing reference for that
- * prefix, so each role has its own numbering.
- */
 @Component
 @AllArgsConstructor
 public class UserReferenceGenerator {
@@ -35,7 +29,6 @@ public class UserReferenceGenerator {
     try {
       return Integer.parseInt(reference.substring(prefix.length()));
     } catch (NumberFormatException e) {
-      // Defensive fallback: an unexpected reference shape shouldn't block user creation.
       return 0;
     }
   }

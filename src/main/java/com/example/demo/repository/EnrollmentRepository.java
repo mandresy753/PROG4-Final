@@ -21,4 +21,6 @@ public interface EnrollmentRepository extends JpaRepository<JEnrollment, UUID> {
   List<JEnrollment> findByGroup_IdAndAcademicYear_Id(UUID groupId, UUID academicYearId);
 
   List<JEnrollment> findByAcademicYear_Id(UUID academicYearId);
+
+  List<String> findDistinctAcademicYear_LabelByLevelOrderByAcademicYear_LabelDesc(Level level);
 }

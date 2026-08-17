@@ -1,6 +1,5 @@
 package com.example.demo.security;
 
-import com.example.demo.PojaGenerated;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -15,10 +14,11 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-@PojaGenerated
 @Component
 @AllArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
+
+  public static final String JWT_COOKIE_NAME = "jwt";
 
   private final JwtService jwtService;
   private final UserDetailsService userDetailsService;
@@ -29,13 +29,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       @NonNull HttpServletResponse response,
       @NonNull FilterChain filterChain)
       throws ServletException, IOException {
-    var authHeader = request.getHeader("Authorization");
-    if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+    var jwt = extractToken(request);
+    if (jwt == null) {
       filterChain.doFilter(request, response);
       return;
     }
 
-    var jwt = authHeader.substring(7);
     var username = jwtService.extractUsername(jwt);
 
     if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
@@ -49,5 +48,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       }
     }
     filterChain.doFilter(request, response);
+  }
+
+  private String extractToken(HttpServletRequest request) {
+    var authHeader = request.getHeader("Authorization");
+    if (authHeader != null && authHeader.startsWith("Bearer ")) {
+      return authHeader.substring(7);
+    }
+
+    var cookies = request.getCookies();
+    if (cookies != null) {
+      for (var cookie : cookies) {
+        if (JWT_COOKIE_NAME.equals(cookie.getName())) {
+          return cookie.getValue();
+        }
+      }
+    }
+
+    return null;
   }
 }

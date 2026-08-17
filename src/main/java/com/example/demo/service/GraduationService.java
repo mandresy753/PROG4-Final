@@ -1,9 +1,11 @@
 package com.example.demo.service;
 
+import com.example.demo.enums.Level;
 import com.example.demo.enums.Track;
 import com.example.demo.enums.UserRole;
 import com.example.demo.model.Graduate;
 import com.example.demo.model.User;
+import com.example.demo.repository.EnrollmentRepository;
 import com.example.demo.repository.GraduateRankingRow;
 import com.example.demo.repository.GraduationQueryRepository;
 import java.util.EnumMap;
@@ -20,17 +22,13 @@ public class GraduationService {
       SemesterCreditPolicy.MAX_CREDITS_PER_SEMESTER * 6;
 
   private final GraduationQueryRepository graduationQueryRepository;
+  private final EnrollmentRepository enrollmentRepository;
 
-  /**
-   * Lists the graduates of a given track (EL/TN) for a given promotion, ranked by overall average
-   * (best first). The promotion is the label of the academic year in which the student started
-   * their L1 - i.e. their entry cohort, independent of any group changes since.
-   *
-   * <p>The averaging, completeness check and ranking all happen in a single SQL query (see {@link
-   * GraduationQueryRepository#findRankedGraduates}) rather than in Java, so this stays fast
-   * regardless of how many students are enrolled overall - only the matching promotion/track is
-   * ever touched, and only graduated students are ever pulled back into the JVM.
-   */
+  public List<String> listPromotions() {
+    return enrollmentRepository.findDistinctAcademicYear_LabelByLevelOrderByAcademicYear_LabelDesc(
+        Level.L1);
+  }
+
   public List<Graduate> listGraduates(Track track, String promotion) {
     return graduationQueryRepository
         .findRankedGraduates(track.name(), promotion, EXPECTED_TOTAL_CREDITS)
@@ -39,10 +37,6 @@ public class GraduationService {
         .toList();
   }
 
-  /**
-   * Lists both tracks of a promotion at once (one SQL query per track), for the combined EL+TN
-   * export. Kept as two queries rather than one because ranking is computed per track.
-   */
   public Map<Track, List<Graduate>> listGraduatesByPromotion(String promotion) {
     var byTrack = new EnumMap<Track, List<Graduate>>(Track.class);
     for (Track track : Track.values()) {
