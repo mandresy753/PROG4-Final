@@ -14,6 +14,7 @@ import java.math.BigDecimal;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @AllArgsConstructor
@@ -23,13 +24,14 @@ public class TranscriptService {
   private final UserRepository userRepository;
   private final UserMapper userMapper;
 
+  @Transactional(readOnly = true)
   public YearTranscript yearTranscript(UUID studentId, UUID academicYearId) {
     var yearAverage = gradeAverageService.yearAverage(studentId, academicYearId);
     var student = loadStudent(studentId);
-
     return toYearTranscript(student, yearAverage);
   }
 
+  @Transactional(readOnly = true)
   public FullTranscript fullTranscript(UUID studentId) {
     var overallAverage = gradeAverageService.overallAverage(studentId);
 
