@@ -16,6 +16,7 @@ import com.example.demo.repository.UserRepository;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -117,5 +118,12 @@ public class EnrollmentService {
         .max(Comparator.comparing(JEnrollment::getStartDate))
         .map(e -> e.getGroup().getTrack())
         .orElseThrow(() -> new BadRequestException("This student has no enrollment"));
+  }
+
+  public Optional<Track> finalTrack(UUID studentId) {
+    return enrollmentRepository.findByStudent_Id(studentId).stream()
+        .filter(e -> e.getGroup().getTrack() != Track.TRONC_COMMUN)
+        .max(Comparator.comparing(JEnrollment::getStartDate))
+        .map(e -> e.getGroup().getTrack());
   }
 }

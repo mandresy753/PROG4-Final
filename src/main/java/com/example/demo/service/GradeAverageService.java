@@ -1,8 +1,10 @@
 package com.example.demo.service;
 
 import com.example.demo.entity.JAcademicYear;
+import com.example.demo.entity.JCourseOffering;
 import com.example.demo.entity.JExam;
 import com.example.demo.entity.JUser;
+import com.example.demo.enums.Track;
 import com.example.demo.enums.UserRole;
 import com.example.demo.exception.BadRequestException;
 import com.example.demo.exception.ResourceNotFoundException;
@@ -38,6 +40,7 @@ public class GradeAverageService {
   private final UserRepository userRepository;
   private final CourseOfferingMapper courseOfferingMapper;
   private final UserMapper userMapper;
+  private final EnrollmentService enrollmentService;
 
   public CourseAverage courseAverage(UUID studentId, UUID courseOfferingId) {
     var courseOffering =
@@ -95,6 +98,8 @@ public class GradeAverageService {
           "This student was not enrolled in this academic year: " + academicYearId);
     }
 
+    var studentTrack = enrollmentService.finalTrack(studentId).orElse(null);
+
     var courseOfferingIds =
         groupIdsForYear.stream()
             .flatMap(
@@ -102,6 +107,7 @@ public class GradeAverageService {
                     courseOfferingRepository
                         .findByGroupIdAndAcademicYear_Id(groupId, academicYearId)
                         .stream())
+            .filter(offering -> matchesTrack(offering, studentTrack))
             .map(offering -> offering.getId())
             .distinct()
             .toList();
@@ -110,6 +116,11 @@ public class GradeAverageService {
         courseOfferingIds.stream().map(id -> courseAverage(studentId, id)).toList();
 
     return buildYearAverage(courseAverages);
+  }
+
+  private boolean matchesTrack(JCourseOffering offering, Track studentTrack) {
+    var courseTrack = offering.getCourse().getTrack();
+    return courseTrack == Track.TRONC_COMMUN || courseTrack == studentTrack;
   }
 
   private YearAverage buildYearAverage(List<CourseAverage> courseAverages) {
