@@ -21,20 +21,19 @@ WITH student_promotion AS (
     ORDER BY e.student_id, e.start_date ASC
 ),
 student_track AS (
-    SELECT
+    SELECT DISTINCT ON (e.student_id)
         e.student_id,
-        MIN(g.track) FILTER (WHERE g.track != 'TRONC_COMMUN') AS track,
-        COUNT(DISTINCT g.track) FILTER (WHERE g.track != 'TRONC_COMMUN') AS track_count
+        g.track AS track
     FROM enrollments e
     JOIN groups g ON g.id = e.group_id
-    GROUP BY e.student_id
+    WHERE g.track != 'TRONC_COMMUN'
+    ORDER BY e.student_id, e.start_date DESC
 ),
 eligible_students AS (
     SELECT sp.student_id
     FROM student_promotion sp
     JOIN student_track st ON st.student_id = sp.student_id
     WHERE sp.promotion = :promotion
-      AND st.track_count = 1
       AND st.track = :track
 ),
 student_offerings AS (
@@ -43,7 +42,10 @@ student_offerings AS (
     JOIN course_offering_groups cog ON cog.group_id = e.group_id
     JOIN course_offerings co
       ON co.id = cog.course_offering_id AND co.academic_year_id = e.academic_year_id
+    JOIN courses c ON c.id = co.course_id
+    JOIN student_track st ON st.student_id = e.student_id
     WHERE e.student_id IN (SELECT student_id FROM eligible_students)
+      AND c.track IN ('TRONC_COMMUN', st.track)
 ),
 exam_totals AS (
     SELECT course_offering_id, SUM(coefficient) AS total_coefficient
