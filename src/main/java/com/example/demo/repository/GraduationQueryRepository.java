@@ -21,8 +21,10 @@ WITH student_promotion AS (
     ORDER BY e.student_id, e.start_date ASC
 ),
 student_track AS (
-    -- A student must have a single, consistent track across all their enrollments.
-    SELECT e.student_id, MIN(g.track) AS track, COUNT(DISTINCT g.track) AS track_count
+    SELECT
+        e.student_id,
+        MIN(g.track) FILTER (WHERE g.track != 'TRONC_COMMUN') AS track,
+        COUNT(DISTINCT g.track) FILTER (WHERE g.track != 'TRONC_COMMUN') AS track_count
     FROM enrollments e
     JOIN groups g ON g.id = e.group_id
     GROUP BY e.student_id
@@ -36,9 +38,6 @@ eligible_students AS (
       AND st.track = :track
 ),
 student_offerings AS (
-    -- Option A: un course_offering peut être partagé par plusieurs groupes
-    -- (course_offering_groups), donc on passe par cette table de liaison plutôt
-    -- que par un group_id direct sur course_offerings.
     SELECT DISTINCT e.student_id, co.id AS course_offering_id, co.course_id
     FROM enrollments e
     JOIN course_offering_groups cog ON cog.group_id = e.group_id
@@ -52,9 +51,6 @@ exam_totals AS (
     GROUP BY course_offering_id
 ),
 latest_grades AS (
-    -- Une note est liée à une exam_session (date/prof/groupe précis), mais le
-    -- coefficient et donc la moyenne du cours se calculent au niveau de l'exam
-    -- (exam_sessions.exam_id), peu importe quelle session l'étudiant a passée.
     SELECT DISTINCT ON (es.exam_id, g.student_id)
         es.exam_id, g.student_id, g.value
     FROM grades g
