@@ -12,8 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 class AcademicYearRepositoryIT extends FacadeIT {
 
-  @Autowired
-  private AcademicYearRepository repository;
+  @Autowired private AcademicYearRepository repository;
 
   @Test
   @Transactional
@@ -29,15 +28,10 @@ class AcademicYearRepositoryIT extends FacadeIT {
 
     assertNotNull(saved.getId());
 
-    JAcademicYear found =
-        repository.findById(saved.getId()).orElseThrow();
+    JAcademicYear found = repository.findById(saved.getId()).orElseThrow();
 
     assertEquals("2025-2026", found.getLabel());
-    assertEquals(
-        LocalDate.of(2025, 9, 1),
-        found.getStartDate());
-    assertEquals(
-        LocalDate.of(2026, 7, 31),
-        found.getEndDate());
+    assertEquals(LocalDate.of(2025, 9, 1), found.getStartDate());
+    assertEquals(LocalDate.of(2026, 7, 31), found.getEndDate());
   }
 }
