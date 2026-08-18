@@ -1,5 +1,6 @@
 package com.example.demo.security;
 
+import com.example.demo.security.authorization.SelfOrAdminAuthorizationManager;
 import com.example.demo.security.authorization.SelfOrStaffAuthorizationManager;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -26,6 +27,7 @@ public class SecurityConfig {
   private final RestAuthenticationEntryPoint restAuthenticationEntryPoint;
   private final RestAccessDeniedHandler restAccessDeniedHandler;
   private final SelfOrStaffAuthorizationManager selfOrStaffAuthorizationManager;
+  private final SelfOrAdminAuthorizationManager selfOrAdminAuthorizationManager;
   private final GradeReadAuthorizationManager gradeReadAuthorizationManager;
   private final GradeAuthorizationManager gradeAuthorizationManager;
 
@@ -75,7 +77,9 @@ public class SecurityConfig {
                     .requestMatchers(HttpMethod.GET, "/averages/**")
                     .access(selfOrStaffAuthorizationManager)
                     .requestMatchers(HttpMethod.GET, "/transcripts/**")
-                    .access(selfOrStaffAuthorizationManager)
+                    .access(selfOrAdminAuthorizationManager)
+                    .requestMatchers(HttpMethod.POST, "/transcripts/{studentId}/send-email")
+                    .access(selfOrAdminAuthorizationManager)
                     .anyRequest()
                     .authenticated())
         .sessionManagement(
