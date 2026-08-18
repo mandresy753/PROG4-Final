@@ -70,15 +70,14 @@ public class GraduateXlsxGenerator {
     row.createCell(0).setCellValue(graduate.rank());
     row.createCell(1).setCellValue(student.reference());
     row.createCell(2).setCellValue(student.lastName());
+    row.createCell(3).setCellValue(student.firstName());
 
-    var averageCell = row.createCell(3);
+    var averageCell = row.createCell(4);
     averageCell.setCellValue(
         graduate.overallAverage() == null ? 0 : graduate.overallAverage().doubleValue());
     averageCell.setCellStyle(styles.average());
 
-    row.createCell(4).setCellValue(graduate.rank());
-
-    for (int col : new int[] {0, 1, 2, 4}) {
+    for (int col : new int[] {0, 1, 2, 3}) {
       row.getCell(col).setCellStyle(styles.data());
     }
   }
