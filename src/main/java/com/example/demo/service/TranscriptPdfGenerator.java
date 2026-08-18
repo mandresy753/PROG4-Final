@@ -98,6 +98,14 @@ public class TranscriptPdfGenerator {
       y -= 20;
 
       y =
+          new TableRenderer(cs, MARGIN, y, CONTENT_WIDTH)
+              .header("Année", "Crédits validés", "Moyenne annuelle", "Statut")
+              .columnWidths(0.30f, 0.25f, 0.25f, 0.20f)
+              .rows(yearRows(transcript.years()))
+              .draw();
+      y -= 20;
+
+      y =
           writeResult(
               cs,
               y,
@@ -108,6 +116,19 @@ public class TranscriptPdfGenerator {
 
       writeSignatureBlock(cs);
     }
+  }
+
+  private List<String[]> yearRows(List<YearTranscript> years) {
+    return years.stream()
+        .map(
+            y ->
+                new String[] {
+                  y.academicYear().label(),
+                  y.validatedCredits() + " / " + y.totalCredits(),
+                  formatAverage(y.generalAverage()),
+                  y.status().toString()
+                })
+        .toList();
   }
 
   private List<String[]> courseRows(List<TranscriptCourseLine> courses) {
@@ -135,10 +156,6 @@ public class TranscriptPdfGenerator {
     return y;
   }
 
-  /**
-   * Écrit la ligne de résultat (crédits acquis / moyenne). validatedCredits peut être null (cas de
-   * la synthèse globale, où la notion "acquis" n'a pas d'équivalent direct).
-   */
   private float writeResult(
       PDPageContentStream cs,
       float y,
@@ -207,7 +224,6 @@ public class TranscriptPdfGenerator {
     return average == null ? "N/A" : average.toString();
   }
 
-  /** En-tête établissement, identique sur chaque page (nom, adresse, contact). */
   private static final class SchoolHeader {
     private static final String SCHOOL_NAME = "Haute École d'Informatique";
     private static final String ADDRESS = "Lot 2J 161 R Ivandry, 101 Antananarivo, Madagascar";
@@ -239,11 +255,6 @@ public class TranscriptPdfGenerator {
     }
   }
 
-  /**
-   * Dessine un tableau à colonnes fixes avec bordures et en-tête coloré. Ne gère pas le retour à la
-   * ligne intra-cellule ni le saut de page (à ajouter si le nombre de cours par année devient
-   * important).
-   */
   private static final class TableRenderer {
     private static final float ROW_PADDING = 6f;
     private static final float LINE_HEIGHT = 12f;
