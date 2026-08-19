@@ -14,9 +14,7 @@ import com.example.demo.mapper.UserMapper;
 import com.example.demo.model.AcademicYear;
 import com.example.demo.model.Course;
 import com.example.demo.model.CourseOffering;
-import com.example.demo.model.Group;
 import com.example.demo.model.User;
-import com.example.demo.model.report.CourseAverage;
 import com.example.demo.repository.CourseOfferingRepository;
 import com.example.demo.repository.EnrollmentRepository;
 import com.example.demo.repository.ExamRepository;
@@ -26,7 +24,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -60,37 +57,54 @@ class GradeAverageServiceTest {
   }
 
   private com.example.demo.entity.JUser buildStudent() {
-    return com.example.demo.entity.JUser.builder()
-        .id(studentId).role(UserRole.STUDENT).build();
+    return com.example.demo.entity.JUser.builder().id(studentId).role(UserRole.STUDENT).build();
   }
 
   private com.example.demo.entity.JCourseOffering buildOffering() {
-    var course = com.example.demo.entity.JCourse.builder()
-        .id(UUID.randomUUID()).ref("PROG1").title("Programmation 1")
-        .creditCount(6).track(Track.TRONC_COMMUN).semester(Semester.S1).build();
-    var year = com.example.demo.entity.JAcademicYear.builder()
-        .id(academicYearId).label("2025-2026").build();
+    var course =
+        com.example.demo.entity.JCourse.builder()
+            .id(UUID.randomUUID())
+            .ref("PROG1")
+            .title("Programmation 1")
+            .creditCount(6)
+            .track(Track.TRONC_COMMUN)
+            .semester(Semester.S1)
+            .build();
+    var year =
+        com.example.demo.entity.JAcademicYear.builder()
+            .id(academicYearId)
+            .label("2025-2026")
+            .build();
     return com.example.demo.entity.JCourseOffering.builder()
-        .id(courseOfferingId).course(course).academicYear(year).build();
+        .id(courseOfferingId)
+        .course(course)
+        .academicYear(year)
+        .build();
   }
 
   @Test
   void courseAverage_withGrades() {
     var offering = buildOffering();
     when(courseOfferingRepository.findById(courseOfferingId)).thenReturn(Optional.of(offering));
-    when(courseOfferingMapper.toModel(offering)).thenReturn(
-        CourseOffering.builder().id(courseOfferingId).build());
+    when(courseOfferingMapper.toModel(offering))
+        .thenReturn(CourseOffering.builder().id(courseOfferingId).build());
 
-    var exam = com.example.demo.entity.JExam.builder()
-        .id(UUID.randomUUID()).coefficient(new BigDecimal("0.4")).courseOffering(offering).build();
-    var exam2 = com.example.demo.entity.JExam.builder()
-        .id(UUID.randomUUID()).coefficient(new BigDecimal("0.6")).courseOffering(offering).build();
+    var exam =
+        com.example.demo.entity.JExam.builder()
+            .id(UUID.randomUUID())
+            .coefficient(new BigDecimal("0.4"))
+            .courseOffering(offering)
+            .build();
+    var exam2 =
+        com.example.demo.entity.JExam.builder()
+            .id(UUID.randomUUID())
+            .coefficient(new BigDecimal("0.6"))
+            .courseOffering(offering)
+            .build();
     when(examRepository.findByCourseOffering_Id(courseOfferingId)).thenReturn(List.of(exam, exam2));
 
-    var grade1 = com.example.demo.entity.JGrade.builder()
-        .value(new BigDecimal("14")).build();
-    var grade2 = com.example.demo.entity.JGrade.builder()
-        .value(new BigDecimal("16")).build();
+    var grade1 = com.example.demo.entity.JGrade.builder().value(new BigDecimal("14")).build();
+    var grade2 = com.example.demo.entity.JGrade.builder().value(new BigDecimal("16")).build();
     when(gradeRepository.findLatestByExamAndStudent(exam.getId(), studentId))
         .thenReturn(Optional.of(grade1));
     when(gradeRepository.findLatestByExamAndStudent(exam2.getId(), studentId))
@@ -106,11 +120,15 @@ class GradeAverageServiceTest {
   void courseAverage_noGrades() {
     var offering = buildOffering();
     when(courseOfferingRepository.findById(courseOfferingId)).thenReturn(Optional.of(offering));
-    when(courseOfferingMapper.toModel(offering)).thenReturn(
-        CourseOffering.builder().id(courseOfferingId).build());
+    when(courseOfferingMapper.toModel(offering))
+        .thenReturn(CourseOffering.builder().id(courseOfferingId).build());
 
-    var exam = com.example.demo.entity.JExam.builder()
-        .id(UUID.randomUUID()).coefficient(new BigDecimal("0.4")).courseOffering(offering).build();
+    var exam =
+        com.example.demo.entity.JExam.builder()
+            .id(UUID.randomUUID())
+            .coefficient(new BigDecimal("0.4"))
+            .courseOffering(offering)
+            .build();
     when(examRepository.findByCourseOffering_Id(courseOfferingId)).thenReturn(List.of(exam));
     when(gradeRepository.findLatestByExamAndStudent(any(), eq(studentId)))
         .thenReturn(Optional.empty());
@@ -124,7 +142,8 @@ class GradeAverageServiceTest {
   @Test
   void courseAverage_offeringNotFound() {
     when(courseOfferingRepository.findById(any())).thenReturn(Optional.empty());
-    assertThrows(ResourceNotFoundException.class,
+    assertThrows(
+        ResourceNotFoundException.class,
         () -> gradeAverageService.courseAverage(studentId, courseOfferingId));
   }
 
@@ -134,11 +153,19 @@ class GradeAverageServiceTest {
     when(userRepository.findById(studentId)).thenReturn(Optional.of(student));
 
     var groupId = UUID.randomUUID();
-    var enrollment = com.example.demo.entity.JEnrollment.builder()
-        .student(student)
-        .group(com.example.demo.entity.JGroup.builder().id(groupId).track(Track.TRONC_COMMUN).build())
-        .academicYear(com.example.demo.entity.JAcademicYear.builder().id(academicYearId).build())
-        .level(Level.L1).startDate(LocalDate.of(2025,9,1)).build();
+    var enrollment =
+        com.example.demo.entity.JEnrollment.builder()
+            .student(student)
+            .group(
+                com.example.demo.entity.JGroup.builder()
+                    .id(groupId)
+                    .track(Track.TRONC_COMMUN)
+                    .build())
+            .academicYear(
+                com.example.demo.entity.JAcademicYear.builder().id(academicYearId).build())
+            .level(Level.L1)
+            .startDate(LocalDate.of(2025, 9, 1))
+            .build();
     when(enrollmentRepository.findByStudent_Id(studentId)).thenReturn(List.of(enrollment));
     when(enrollmentService.finalTrack(studentId)).thenReturn(Optional.of(Track.EL));
 
@@ -146,15 +173,28 @@ class GradeAverageServiceTest {
     when(courseOfferingRepository.findByGroupIdAndAcademicYear_Id(groupId, academicYearId))
         .thenReturn(List.of(offering));
     when(courseOfferingRepository.findById(courseOfferingId)).thenReturn(Optional.of(offering));
-    when(courseOfferingMapper.toModel(offering)).thenReturn(
-        CourseOffering.builder().id(courseOfferingId)
-            .course(Course.builder().id(offering.getCourse().getId()).ref("PROG1").title("Programmation 1")
-                .creditCount(6).track(Track.TRONC_COMMUN).semester(Semester.S1).build())
-            .academicYear(AcademicYear.builder().id(academicYearId).label("2025-2026").build())
-            .build());
+    when(courseOfferingMapper.toModel(offering))
+        .thenReturn(
+            CourseOffering.builder()
+                .id(courseOfferingId)
+                .course(
+                    Course.builder()
+                        .id(offering.getCourse().getId())
+                        .ref("PROG1")
+                        .title("Programmation 1")
+                        .creditCount(6)
+                        .track(Track.TRONC_COMMUN)
+                        .semester(Semester.S1)
+                        .build())
+                .academicYear(AcademicYear.builder().id(academicYearId).label("2025-2026").build())
+                .build());
 
-    var exam = com.example.demo.entity.JExam.builder()
-        .id(UUID.randomUUID()).coefficient(BigDecimal.ONE).courseOffering(offering).build();
+    var exam =
+        com.example.demo.entity.JExam.builder()
+            .id(UUID.randomUUID())
+            .coefficient(BigDecimal.ONE)
+            .courseOffering(offering)
+            .build();
     when(examRepository.findByCourseOffering_Id(courseOfferingId)).thenReturn(List.of(exam));
 
     var grade = com.example.demo.entity.JGrade.builder().value(new BigDecimal("14")).build();
@@ -172,7 +212,8 @@ class GradeAverageServiceTest {
     when(userRepository.findById(studentId)).thenReturn(Optional.of(buildStudent()));
     when(enrollmentRepository.findByStudent_Id(studentId)).thenReturn(List.of());
 
-    assertThrows(BadRequestException.class,
+    assertThrows(
+        BadRequestException.class,
         () -> gradeAverageService.yearAverage(studentId, academicYearId));
   }
 
@@ -180,15 +221,27 @@ class GradeAverageServiceTest {
   void overallAverage() {
     var student = buildStudent();
     when(userRepository.findById(studentId)).thenReturn(Optional.of(student));
-    when(userMapper.toModel(any())).thenReturn(
-        User.builder().id(studentId).role(UserRole.STUDENT).build());
+    when(userMapper.toModel(any()))
+        .thenReturn(User.builder().id(studentId).role(UserRole.STUDENT).build());
 
     var groupId = UUID.randomUUID();
-    var enrollment = com.example.demo.entity.JEnrollment.builder()
-        .student(student)
-        .group(com.example.demo.entity.JGroup.builder().id(groupId).track(Track.TRONC_COMMUN).build())
-        .academicYear(com.example.demo.entity.JAcademicYear.builder().id(academicYearId).label("2025-2026").startDate(LocalDate.of(2025,9,1)).build())
-        .level(Level.L1).startDate(LocalDate.of(2025,9,1)).build();
+    var enrollment =
+        com.example.demo.entity.JEnrollment.builder()
+            .student(student)
+            .group(
+                com.example.demo.entity.JGroup.builder()
+                    .id(groupId)
+                    .track(Track.TRONC_COMMUN)
+                    .build())
+            .academicYear(
+                com.example.demo.entity.JAcademicYear.builder()
+                    .id(academicYearId)
+                    .label("2025-2026")
+                    .startDate(LocalDate.of(2025, 9, 1))
+                    .build())
+            .level(Level.L1)
+            .startDate(LocalDate.of(2025, 9, 1))
+            .build();
     when(enrollmentRepository.findByStudent_Id(studentId)).thenReturn(List.of(enrollment));
     when(enrollmentService.finalTrack(studentId)).thenReturn(Optional.of(Track.EL));
 
@@ -196,15 +249,28 @@ class GradeAverageServiceTest {
     when(courseOfferingRepository.findByGroupIdAndAcademicYear_Id(groupId, academicYearId))
         .thenReturn(List.of(offering));
     when(courseOfferingRepository.findById(courseOfferingId)).thenReturn(Optional.of(offering));
-    when(courseOfferingMapper.toModel(offering)).thenReturn(
-        CourseOffering.builder().id(courseOfferingId)
-            .course(Course.builder().id(offering.getCourse().getId()).ref("PROG1").title("Programmation 1")
-                .creditCount(6).track(Track.TRONC_COMMUN).semester(Semester.S1).build())
-            .academicYear(AcademicYear.builder().id(academicYearId).label("2025-2026").build())
-            .build());
+    when(courseOfferingMapper.toModel(offering))
+        .thenReturn(
+            CourseOffering.builder()
+                .id(courseOfferingId)
+                .course(
+                    Course.builder()
+                        .id(offering.getCourse().getId())
+                        .ref("PROG1")
+                        .title("Programmation 1")
+                        .creditCount(6)
+                        .track(Track.TRONC_COMMUN)
+                        .semester(Semester.S1)
+                        .build())
+                .academicYear(AcademicYear.builder().id(academicYearId).label("2025-2026").build())
+                .build());
 
-    var exam = com.example.demo.entity.JExam.builder()
-        .id(UUID.randomUUID()).coefficient(BigDecimal.ONE).courseOffering(offering).build();
+    var exam =
+        com.example.demo.entity.JExam.builder()
+            .id(UUID.randomUUID())
+            .coefficient(BigDecimal.ONE)
+            .courseOffering(offering)
+            .build();
     when(examRepository.findByCourseOffering_Id(courseOfferingId)).thenReturn(List.of(exam));
 
     var grade = com.example.demo.entity.JGrade.builder().value(new BigDecimal("14")).build();
@@ -220,15 +286,19 @@ class GradeAverageServiceTest {
   @Test
   void overallAverage_studentNotFound() {
     when(userRepository.findById(any())).thenReturn(Optional.empty());
-    assertThrows(ResourceNotFoundException.class,
-        () -> gradeAverageService.overallAverage(studentId));
+    assertThrows(
+        ResourceNotFoundException.class, () -> gradeAverageService.overallAverage(studentId));
   }
 
   @Test
   void overallAverage_notAStudent() {
-    when(userRepository.findById(studentId)).thenReturn(
-        Optional.of(com.example.demo.entity.JUser.builder().id(studentId).role(UserRole.TEACHER).build()));
-    assertThrows(BadRequestException.class,
-        () -> gradeAverageService.overallAverage(studentId));
+    when(userRepository.findById(studentId))
+        .thenReturn(
+            Optional.of(
+                com.example.demo.entity.JUser.builder()
+                    .id(studentId)
+                    .role(UserRole.TEACHER)
+                    .build()));
+    assertThrows(BadRequestException.class, () -> gradeAverageService.overallAverage(studentId));
   }
 }

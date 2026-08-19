@@ -6,13 +6,10 @@ import static org.mockito.Mockito.*;
 import com.example.demo.enums.Track;
 import com.example.demo.file.bucket.BucketComponent;
 import com.example.demo.model.Graduate;
-import com.example.demo.model.User;
 import java.io.File;
-import java.math.BigDecimal;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
-
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,15 +28,17 @@ class GraduateExportServiceTest {
   @SneakyThrows
   @Test
   void exportToXlsx() {
-    var graduatesByTrack = Map.of(
-        Track.EL, List.<Graduate>of(),
-        Track.TN, List.<Graduate>of());
+    var graduatesByTrack =
+        Map.of(
+            Track.EL, List.<Graduate>of(),
+            Track.TN, List.<Graduate>of());
     when(graduationService.listGraduatesByPromotion("2025-2026")).thenReturn(graduatesByTrack);
 
     var tempFile = mock(File.class);
     when(graduateXlsxGenerator.generate(graduatesByTrack)).thenReturn(tempFile);
     when(bucketComponent.upload(any(), anyString())).thenReturn(null);
-    when(bucketComponent.presign(anyString(), any())).thenReturn(new URL("https://s3.example.com/file.xlsx"));
+    when(bucketComponent.presign(anyString(), any()))
+        .thenReturn(new URL("https://s3.example.com/file.xlsx"));
 
     var result = graduateExportService.exportToXlsx("2025-2026");
 

@@ -87,14 +87,15 @@ class CourseServiceTest {
   @Test
   void create() {
     var course = buildCourse(null);
-    when(courseMapper.toEntity(any())).thenReturn(
-        com.example.demo.entity.JCourse.builder()
-            .ref("PROG1")
-            .title("Programmation 1")
-            .creditCount(6)
-            .track(Track.TRONC_COMMUN)
-            .semester(Semester.S1)
-            .build());
+    when(courseMapper.toEntity(any()))
+        .thenReturn(
+            com.example.demo.entity.JCourse.builder()
+                .ref("PROG1")
+                .title("Programmation 1")
+                .creditCount(6)
+                .track(Track.TRONC_COMMUN)
+                .semester(Semester.S1)
+                .build());
     var savedEntity =
         com.example.demo.entity.JCourse.builder()
             .id(UUID.randomUUID())
@@ -117,15 +118,16 @@ class CourseServiceTest {
   void update() {
     var id = UUID.randomUUID();
     when(courseRepository.existsById(id)).thenReturn(true);
-    when(courseMapper.toEntity(any())).thenReturn(
-        com.example.demo.entity.JCourse.builder()
-            .id(id)
-            .ref("PROG1")
-            .title("Programmation 1")
-            .creditCount(6)
-            .track(Track.TRONC_COMMUN)
-            .semester(Semester.S1)
-            .build());
+    when(courseMapper.toEntity(any()))
+        .thenReturn(
+            com.example.demo.entity.JCourse.builder()
+                .id(id)
+                .ref("PROG1")
+                .title("Programmation 1")
+                .creditCount(6)
+                .track(Track.TRONC_COMMUN)
+                .semester(Semester.S1)
+                .build());
     var savedEntity =
         com.example.demo.entity.JCourse.builder()
             .id(id)
@@ -148,7 +150,8 @@ class CourseServiceTest {
     var id = UUID.randomUUID();
     when(courseRepository.existsById(id)).thenReturn(false);
 
-    assertThrows(ResourceNotFoundException.class, () -> courseService.update(id, buildCourse(null)));
+    assertThrows(
+        ResourceNotFoundException.class, () -> courseService.update(id, buildCourse(null)));
   }
 
   @Test

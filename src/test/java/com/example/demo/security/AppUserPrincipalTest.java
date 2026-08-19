@@ -11,8 +11,13 @@ class AppUserPrincipalTest {
   @Test
   void of() {
     var id = UUID.randomUUID();
-    var user = com.example.demo.entity.JUser.builder()
-        .id(id).email("jean@test.com").password("hash").role(UserRole.STUDENT).build();
+    var user =
+        com.example.demo.entity.JUser.builder()
+            .id(id)
+            .email("jean@test.com")
+            .password("hash")
+            .role(UserRole.STUDENT)
+            .build();
 
     var principal = AppUserPrincipal.of(user);
 
@@ -25,29 +30,39 @@ class AppUserPrincipalTest {
     assertTrue(principal.isCredentialsNonExpired());
     assertTrue(principal.isEnabled());
     assertEquals(1, principal.getAuthorities().size());
-    assertTrue(principal.getAuthorities().stream()
-        .anyMatch(a -> a.getAuthority().equals("ROLE_STUDENT")));
+    assertTrue(
+        principal.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_STUDENT")));
   }
 
   @Test
   void of_teacher() {
-    var user = com.example.demo.entity.JUser.builder()
-        .id(UUID.randomUUID()).email("teacher@test.com").password("hash").role(UserRole.TEACHER).build();
+    var user =
+        com.example.demo.entity.JUser.builder()
+            .id(UUID.randomUUID())
+            .email("teacher@test.com")
+            .password("hash")
+            .role(UserRole.TEACHER)
+            .build();
 
     var principal = AppUserPrincipal.of(user);
 
-    assertTrue(principal.getAuthorities().stream()
-        .anyMatch(a -> a.getAuthority().equals("ROLE_TEACHER")));
+    assertTrue(
+        principal.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_TEACHER")));
   }
 
   @Test
   void of_admin() {
-    var user = com.example.demo.entity.JUser.builder()
-        .id(UUID.randomUUID()).email("admin@test.com").password("hash").role(UserRole.ADMIN).build();
+    var user =
+        com.example.demo.entity.JUser.builder()
+            .id(UUID.randomUUID())
+            .email("admin@test.com")
+            .password("hash")
+            .role(UserRole.ADMIN)
+            .build();
 
     var principal = AppUserPrincipal.of(user);
 
-    assertTrue(principal.getAuthorities().stream()
-        .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN")));
+    assertTrue(
+        principal.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN")));
   }
 }

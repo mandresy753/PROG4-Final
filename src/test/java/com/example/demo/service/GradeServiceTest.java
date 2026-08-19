@@ -32,8 +32,7 @@ class GradeServiceTest {
   @InjectMocks private GradeService gradeService;
 
   private com.example.demo.entity.JUser buildStudent(UUID id) {
-    return com.example.demo.entity.JUser.builder()
-        .id(id).role(UserRole.STUDENT).build();
+    return com.example.demo.entity.JUser.builder().id(id).role(UserRole.STUDENT).build();
   }
 
   private com.example.demo.entity.JExamSession buildExamSession(UUID id) {
@@ -44,12 +43,22 @@ class GradeServiceTest {
   void history() {
     var examSessionId = UUID.randomUUID();
     var studentId = UUID.randomUUID();
-    var entity = com.example.demo.entity.JGrade.builder()
-        .id(UUID.randomUUID()).value(new BigDecimal("15")).entryDate(LocalDateTime.now()).build();
-    when(gradeRepository.findByExamSession_IdAndStudent_IdOrderByEntryDateDesc(examSessionId, studentId))
+    var entity =
+        com.example.demo.entity.JGrade.builder()
+            .id(UUID.randomUUID())
+            .value(new BigDecimal("15"))
+            .entryDate(LocalDateTime.now())
+            .build();
+    when(gradeRepository.findByExamSession_IdAndStudent_IdOrderByEntryDateDesc(
+            examSessionId, studentId))
         .thenReturn(List.of(entity));
-    when(gradeMapper.toModel(entity)).thenReturn(
-        Grade.builder().id(entity.getId()).value(new BigDecimal("15")).entryDate(entity.getEntryDate()).build());
+    when(gradeMapper.toModel(entity))
+        .thenReturn(
+            Grade.builder()
+                .id(entity.getId())
+                .value(new BigDecimal("15"))
+                .entryDate(entity.getEntryDate())
+                .build());
 
     assertEquals(1, gradeService.history(examSessionId, studentId).size());
   }
@@ -59,13 +68,18 @@ class GradeServiceTest {
     var studentId = UUID.randomUUID();
     var examId = UUID.randomUUID();
     var exam = com.example.demo.entity.JExam.builder().id(examId).build();
-    var examSession = com.example.demo.entity.JExamSession.builder().id(UUID.randomUUID()).exam(exam).build();
-    var entity = com.example.demo.entity.JGrade.builder()
-        .id(UUID.randomUUID()).examSession(examSession).value(new BigDecimal("15"))
-        .entryDate(LocalDateTime.now()).build();
+    var examSession =
+        com.example.demo.entity.JExamSession.builder().id(UUID.randomUUID()).exam(exam).build();
+    var entity =
+        com.example.demo.entity.JGrade.builder()
+            .id(UUID.randomUUID())
+            .examSession(examSession)
+            .value(new BigDecimal("15"))
+            .entryDate(LocalDateTime.now())
+            .build();
     when(gradeRepository.findByStudent_Id(studentId)).thenReturn(List.of(entity));
-    when(gradeMapper.toModel(entity)).thenReturn(
-        Grade.builder().id(entity.getId()).value(new BigDecimal("15")).build());
+    when(gradeMapper.toModel(entity))
+        .thenReturn(Grade.builder().id(entity.getId()).value(new BigDecimal("15")).build());
 
     assertEquals(1, gradeService.currentGradesForStudent(studentId).size());
   }
@@ -83,16 +97,22 @@ class GradeServiceTest {
     when(userRepository.findById(studentId)).thenReturn(Optional.of(student));
     when(userRepository.existsById(enteredById)).thenReturn(true);
 
-    var savedEntity = com.example.demo.entity.JGrade.builder()
-        .id(UUID.randomUUID()).value(new BigDecimal("15")).entryDate(LocalDateTime.now()).build();
+    var savedEntity =
+        com.example.demo.entity.JGrade.builder()
+            .id(UUID.randomUUID())
+            .value(new BigDecimal("15"))
+            .entryDate(LocalDateTime.now())
+            .build();
     when(examSessionRepository.getReferenceById(examSessionId)).thenReturn(examSession);
     when(userRepository.getReferenceById(studentId)).thenReturn(student);
     when(userRepository.getReferenceById(enteredById)).thenReturn(author);
     when(gradeRepository.save(any())).thenReturn(savedEntity);
-    when(gradeMapper.toModel(any())).thenReturn(
-        Grade.builder().id(savedEntity.getId()).value(new BigDecimal("15")).build());
+    when(gradeMapper.toModel(any()))
+        .thenReturn(Grade.builder().id(savedEntity.getId()).value(new BigDecimal("15")).build());
 
-    var result = gradeService.record(examSessionId, studentId, enteredById, new BigDecimal("15"), "Test reason");
+    var result =
+        gradeService.record(
+            examSessionId, studentId, enteredById, new BigDecimal("15"), "Test reason");
 
     assertEquals(new BigDecimal("15"), result.value());
   }
@@ -100,56 +120,82 @@ class GradeServiceTest {
   @Test
   void record_examSessionNotFound() {
     when(examSessionRepository.findById(any())).thenReturn(Optional.empty());
-    assertThrows(ResourceNotFoundException.class,
-        () -> gradeService.record(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), BigDecimal.TEN, null));
+    assertThrows(
+        ResourceNotFoundException.class,
+        () ->
+            gradeService.record(
+                UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), BigDecimal.TEN, null));
   }
 
   @Test
   void record_studentNotFound() {
-    when(examSessionRepository.findById(any())).thenReturn(Optional.of(mock(com.example.demo.entity.JExamSession.class)));
+    when(examSessionRepository.findById(any()))
+        .thenReturn(Optional.of(mock(com.example.demo.entity.JExamSession.class)));
     when(userRepository.findById(any())).thenReturn(Optional.empty());
-    assertThrows(ResourceNotFoundException.class,
-        () -> gradeService.record(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), BigDecimal.TEN, null));
+    assertThrows(
+        ResourceNotFoundException.class,
+        () ->
+            gradeService.record(
+                UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), BigDecimal.TEN, null));
   }
 
   @Test
   void record_notAStudent() {
     var teacherId = UUID.randomUUID();
-    when(examSessionRepository.findById(any())).thenReturn(Optional.of(mock(com.example.demo.entity.JExamSession.class)));
-    when(userRepository.findById(teacherId)).thenReturn(
-        Optional.of(com.example.demo.entity.JUser.builder().id(teacherId).role(UserRole.TEACHER).build()));
-    assertThrows(BadRequestException.class,
-        () -> gradeService.record(UUID.randomUUID(), teacherId, UUID.randomUUID(), BigDecimal.TEN, null));
+    when(examSessionRepository.findById(any()))
+        .thenReturn(Optional.of(mock(com.example.demo.entity.JExamSession.class)));
+    when(userRepository.findById(teacherId))
+        .thenReturn(
+            Optional.of(
+                com.example.demo.entity.JUser.builder()
+                    .id(teacherId)
+                    .role(UserRole.TEACHER)
+                    .build()));
+    assertThrows(
+        BadRequestException.class,
+        () ->
+            gradeService.record(
+                UUID.randomUUID(), teacherId, UUID.randomUUID(), BigDecimal.TEN, null));
   }
 
   @Test
   void record_gradeTooLow() {
     var studentId = UUID.randomUUID();
-    when(examSessionRepository.findById(any())).thenReturn(Optional.of(mock(com.example.demo.entity.JExamSession.class)));
+    when(examSessionRepository.findById(any()))
+        .thenReturn(Optional.of(mock(com.example.demo.entity.JExamSession.class)));
     when(userRepository.findById(studentId)).thenReturn(Optional.of(buildStudent(studentId)));
     when(userRepository.existsById(any())).thenReturn(true);
-    assertThrows(BadRequestException.class,
-        () -> gradeService.record(UUID.randomUUID(), studentId, UUID.randomUUID(), new BigDecimal("-1"), null));
+    assertThrows(
+        BadRequestException.class,
+        () ->
+            gradeService.record(
+                UUID.randomUUID(), studentId, UUID.randomUUID(), new BigDecimal("-1"), null));
   }
 
   @Test
   void record_gradeTooHigh() {
     var studentId = UUID.randomUUID();
-    when(examSessionRepository.findById(any())).thenReturn(Optional.of(mock(com.example.demo.entity.JExamSession.class)));
+    when(examSessionRepository.findById(any()))
+        .thenReturn(Optional.of(mock(com.example.demo.entity.JExamSession.class)));
     when(userRepository.findById(studentId)).thenReturn(Optional.of(buildStudent(studentId)));
     when(userRepository.existsById(any())).thenReturn(true);
-    assertThrows(BadRequestException.class,
-        () -> gradeService.record(UUID.randomUUID(), studentId, UUID.randomUUID(), new BigDecimal("21"), null));
+    assertThrows(
+        BadRequestException.class,
+        () ->
+            gradeService.record(
+                UUID.randomUUID(), studentId, UUID.randomUUID(), new BigDecimal("21"), null));
   }
 
   @Test
   void record_authorNotFound() {
     var studentId = UUID.randomUUID();
     var enteredById = UUID.randomUUID();
-    when(examSessionRepository.findById(any())).thenReturn(Optional.of(mock(com.example.demo.entity.JExamSession.class)));
+    when(examSessionRepository.findById(any()))
+        .thenReturn(Optional.of(mock(com.example.demo.entity.JExamSession.class)));
     when(userRepository.findById(studentId)).thenReturn(Optional.of(buildStudent(studentId)));
     when(userRepository.existsById(enteredById)).thenReturn(false);
-    assertThrows(ResourceNotFoundException.class,
+    assertThrows(
+        ResourceNotFoundException.class,
         () -> gradeService.record(UUID.randomUUID(), studentId, enteredById, BigDecimal.TEN, null));
   }
 }

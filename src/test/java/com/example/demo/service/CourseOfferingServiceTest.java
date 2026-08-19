@@ -14,10 +14,8 @@ import com.example.demo.repository.AcademicYearRepository;
 import com.example.demo.repository.CourseOfferingRepository;
 import com.example.demo.repository.CourseRepository;
 import com.example.demo.repository.GroupRepository;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -38,13 +36,21 @@ class CourseOfferingServiceTest {
 
   private com.example.demo.entity.JCourse buildCourse(UUID id) {
     return com.example.demo.entity.JCourse.builder()
-        .id(id).ref("PROG1").title("Programmation 1").creditCount(6)
-        .track(Track.TRONC_COMMUN).semester(Semester.S1).build();
+        .id(id)
+        .ref("PROG1")
+        .title("Programmation 1")
+        .creditCount(6)
+        .track(Track.TRONC_COMMUN)
+        .semester(Semester.S1)
+        .build();
   }
 
   private com.example.demo.entity.JGroup buildGroup(UUID id) {
     return com.example.demo.entity.JGroup.builder()
-        .id(id).reference("K1").track(Track.TRONC_COMMUN).build();
+        .id(id)
+        .reference("K1")
+        .track(Track.TRONC_COMMUN)
+        .build();
   }
 
   @Test
@@ -62,8 +68,13 @@ class CourseOfferingServiceTest {
 
   @Test
   void findByGroupAndAcademicYear() {
-    when(courseOfferingRepository.findByGroupIdAndAcademicYear_Id(any(), any())).thenReturn(List.of());
-    assertEquals(0, courseOfferingService.findByGroupAndAcademicYear(UUID.randomUUID(), UUID.randomUUID()).size());
+    when(courseOfferingRepository.findByGroupIdAndAcademicYear_Id(any(), any()))
+        .thenReturn(List.of());
+    assertEquals(
+        0,
+        courseOfferingService
+            .findByGroupAndAcademicYear(UUID.randomUUID(), UUID.randomUUID())
+            .size());
   }
 
   @Test
@@ -79,8 +90,8 @@ class CourseOfferingServiceTest {
   @Test
   void findById_notFound() {
     when(courseOfferingRepository.findById(any())).thenReturn(Optional.empty());
-    assertThrows(ResourceNotFoundException.class,
-        () -> courseOfferingService.findById(UUID.randomUUID()));
+    assertThrows(
+        ResourceNotFoundException.class, () -> courseOfferingService.findById(UUID.randomUUID()));
   }
 
   @Test
@@ -94,11 +105,16 @@ class CourseOfferingServiceTest {
     when(groupRepository.findAllById(any())).thenReturn(List.of(buildGroup(groupId)));
     when(courseOfferingRepository.findByCourse_IdAndAcademicYear_IdAndGroupId(any(), any(), any()))
         .thenReturn(List.of());
-    when(courseOfferingRepository.findByGroupIdAndAcademicYear_Id(any(), any())).thenReturn(List.of());
-    var entity = com.example.demo.entity.JCourseOffering.builder()
-        .id(UUID.randomUUID()).course(course).build();
+    when(courseOfferingRepository.findByGroupIdAndAcademicYear_Id(any(), any()))
+        .thenReturn(List.of());
+    var entity =
+        com.example.demo.entity.JCourseOffering.builder()
+            .id(UUID.randomUUID())
+            .course(course)
+            .build();
     when(courseOfferingRepository.save(any())).thenReturn(entity);
-    when(courseOfferingMapper.toModel(any())).thenReturn(CourseOffering.builder().id(entity.getId()).build());
+    when(courseOfferingMapper.toModel(any()))
+        .thenReturn(CourseOffering.builder().id(entity.getId()).build());
 
     assertNotNull(courseOfferingService.create(courseId, yearId, List.of(groupId)));
   }
@@ -106,23 +122,30 @@ class CourseOfferingServiceTest {
   @Test
   void create_courseNotFound() {
     when(courseRepository.findById(any())).thenReturn(Optional.empty());
-    assertThrows(ResourceNotFoundException.class,
-        () -> courseOfferingService.create(UUID.randomUUID(), UUID.randomUUID(), List.of(UUID.randomUUID())));
+    assertThrows(
+        ResourceNotFoundException.class,
+        () ->
+            courseOfferingService.create(
+                UUID.randomUUID(), UUID.randomUUID(), List.of(UUID.randomUUID())));
   }
 
   @Test
   void create_yearNotFound() {
     when(courseRepository.findById(any())).thenReturn(Optional.of(buildCourse(UUID.randomUUID())));
     when(academicYearRepository.existsById(any())).thenReturn(false);
-    assertThrows(ResourceNotFoundException.class,
-        () -> courseOfferingService.create(UUID.randomUUID(), UUID.randomUUID(), List.of(UUID.randomUUID())));
+    assertThrows(
+        ResourceNotFoundException.class,
+        () ->
+            courseOfferingService.create(
+                UUID.randomUUID(), UUID.randomUUID(), List.of(UUID.randomUUID())));
   }
 
   @Test
   void create_emptyGroups() {
     when(courseRepository.findById(any())).thenReturn(Optional.of(buildCourse(UUID.randomUUID())));
     when(academicYearRepository.existsById(any())).thenReturn(true);
-    assertThrows(BadRequestException.class,
+    assertThrows(
+        BadRequestException.class,
         () -> courseOfferingService.create(UUID.randomUUID(), UUID.randomUUID(), List.of()));
   }
 
@@ -130,7 +153,8 @@ class CourseOfferingServiceTest {
   void create_nullGroups() {
     when(courseRepository.findById(any())).thenReturn(Optional.of(buildCourse(UUID.randomUUID())));
     when(academicYearRepository.existsById(any())).thenReturn(true);
-    assertThrows(BadRequestException.class,
+    assertThrows(
+        BadRequestException.class,
         () -> courseOfferingService.create(UUID.randomUUID(), UUID.randomUUID(), null));
   }
 
@@ -139,8 +163,11 @@ class CourseOfferingServiceTest {
     when(courseRepository.findById(any())).thenReturn(Optional.of(buildCourse(UUID.randomUUID())));
     when(academicYearRepository.existsById(any())).thenReturn(true);
     when(groupRepository.findAllById(any())).thenReturn(List.of());
-    assertThrows(ResourceNotFoundException.class,
-        () -> courseOfferingService.create(UUID.randomUUID(), UUID.randomUUID(), List.of(UUID.randomUUID())));
+    assertThrows(
+        ResourceNotFoundException.class,
+        () ->
+            courseOfferingService.create(
+                UUID.randomUUID(), UUID.randomUUID(), List.of(UUID.randomUUID())));
   }
 
   @Test
@@ -151,10 +178,12 @@ class CourseOfferingServiceTest {
     when(courseRepository.findById(courseId)).thenReturn(Optional.of(buildCourse(courseId)));
     when(academicYearRepository.existsById(yearId)).thenReturn(true);
     when(groupRepository.findAllById(any())).thenReturn(List.of(buildGroup(groupId)));
-    when(courseOfferingRepository.findByCourse_IdAndAcademicYear_IdAndGroupId(courseId, yearId, groupId))
+    when(courseOfferingRepository.findByCourse_IdAndAcademicYear_IdAndGroupId(
+            courseId, yearId, groupId))
         .thenReturn(List.of(mock(com.example.demo.entity.JCourseOffering.class)));
 
-    assertThrows(ConflictException.class,
+    assertThrows(
+        ConflictException.class,
         () -> courseOfferingService.create(courseId, yearId, List.of(groupId)));
   }
 

@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import com.example.demo.enums.Track;
-import com.example.demo.model.Graduate;
 import com.example.demo.repository.EnrollmentRepository;
 import com.example.demo.repository.GraduateRankingRow;
 import com.example.demo.repository.GraduationQueryRepository;
@@ -25,7 +24,8 @@ class GraduationServiceTest {
 
   @Test
   void listPromotions() {
-    when(enrollmentRepository.findDistinctAcademicYear_LabelByLevelOrderByAcademicYear_LabelDesc(any()))
+    when(enrollmentRepository.findDistinctAcademicYear_LabelByLevelOrderByAcademicYear_LabelDesc(
+            any()))
         .thenReturn(List.of("2025-2026", "2024-2025"));
 
     var result = graduationService.listPromotions();
@@ -45,7 +45,8 @@ class GraduationServiceTest {
     when(row.getTotalCredits()).thenReturn(180);
     when(row.getRank()).thenReturn(1);
 
-    when(graduationQueryRepository.findRankedGraduates("EL", "2025-2026", GraduationService.EXPECTED_TOTAL_CREDITS))
+    when(graduationQueryRepository.findRankedGraduates(
+            "EL", "2025-2026", GraduationService.EXPECTED_TOTAL_CREDITS))
         .thenReturn(List.of(row));
 
     var result = graduationService.listGraduates(Track.EL, "2025-2026");

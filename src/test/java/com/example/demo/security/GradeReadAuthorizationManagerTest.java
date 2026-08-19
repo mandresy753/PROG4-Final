@@ -35,12 +35,19 @@ class GradeReadAuthorizationManagerTest {
   @Test
   void check_admin() {
     var auth = mock(Authentication.class);
-    var principal = AppUserPrincipal.of(
-        com.example.demo.entity.JUser.builder()
-            .id(UUID.randomUUID()).email("admin@test.com").password("hash").role(UserRole.ADMIN).build());
+    var principal =
+        AppUserPrincipal.of(
+            com.example.demo.entity.JUser.builder()
+                .id(UUID.randomUUID())
+                .email("admin@test.com")
+                .password("hash")
+                .role(UserRole.ADMIN)
+                .build());
     when(auth.getPrincipal()).thenReturn(principal);
 
-    var decision = gradeReadAuthorizationManager.check(() -> auth, createContext("studentId", UUID.randomUUID().toString()));
+    var decision =
+        gradeReadAuthorizationManager.check(
+            () -> auth, createContext("studentId", UUID.randomUUID().toString()));
     assertTrue(decision.isGranted());
   }
 
@@ -48,33 +55,52 @@ class GradeReadAuthorizationManagerTest {
   void check_student_ownData() {
     var studentId = UUID.randomUUID();
     var auth = mock(Authentication.class);
-    var principal = AppUserPrincipal.of(
-        com.example.demo.entity.JUser.builder()
-            .id(studentId).email("student@test.com").password("hash").role(UserRole.STUDENT).build());
+    var principal =
+        AppUserPrincipal.of(
+            com.example.demo.entity.JUser.builder()
+                .id(studentId)
+                .email("student@test.com")
+                .password("hash")
+                .role(UserRole.STUDENT)
+                .build());
     when(auth.getPrincipal()).thenReturn(principal);
 
-    var decision = gradeReadAuthorizationManager.check(() -> auth, createContext("studentId", studentId.toString()));
+    var decision =
+        gradeReadAuthorizationManager.check(
+            () -> auth, createContext("studentId", studentId.toString()));
     assertTrue(decision.isGranted());
   }
 
   @Test
   void check_student_otherData() {
     var auth = mock(Authentication.class);
-    var principal = AppUserPrincipal.of(
-        com.example.demo.entity.JUser.builder()
-            .id(UUID.randomUUID()).email("student@test.com").password("hash").role(UserRole.STUDENT).build());
+    var principal =
+        AppUserPrincipal.of(
+            com.example.demo.entity.JUser.builder()
+                .id(UUID.randomUUID())
+                .email("student@test.com")
+                .password("hash")
+                .role(UserRole.STUDENT)
+                .build());
     when(auth.getPrincipal()).thenReturn(principal);
 
-    var decision = gradeReadAuthorizationManager.check(() -> auth, createContext("studentId", UUID.randomUUID().toString()));
+    var decision =
+        gradeReadAuthorizationManager.check(
+            () -> auth, createContext("studentId", UUID.randomUUID().toString()));
     assertFalse(decision.isGranted());
   }
 
   @Test
   void check_student_noParam() {
     var auth = mock(Authentication.class);
-    var principal = AppUserPrincipal.of(
-        com.example.demo.entity.JUser.builder()
-            .id(UUID.randomUUID()).email("student@test.com").password("hash").role(UserRole.STUDENT).build());
+    var principal =
+        AppUserPrincipal.of(
+            com.example.demo.entity.JUser.builder()
+                .id(UUID.randomUUID())
+                .email("student@test.com")
+                .password("hash")
+                .role(UserRole.STUDENT)
+                .build());
     when(auth.getPrincipal()).thenReturn(principal);
 
     var decision = gradeReadAuthorizationManager.check(() -> auth, createContext());
@@ -86,17 +112,31 @@ class GradeReadAuthorizationManagerTest {
     var teacherId = UUID.randomUUID();
     var offeringId = UUID.randomUUID();
     var auth = mock(Authentication.class);
-    var principal = AppUserPrincipal.of(
-        com.example.demo.entity.JUser.builder()
-            .id(teacherId).email("teacher@test.com").password("hash").role(UserRole.TEACHER).build());
+    var principal =
+        AppUserPrincipal.of(
+            com.example.demo.entity.JUser.builder()
+                .id(teacherId)
+                .email("teacher@test.com")
+                .password("hash")
+                .role(UserRole.TEACHER)
+                .build());
     when(auth.getPrincipal()).thenReturn(principal);
 
-    var assignment = com.example.demo.entity.JTeacherAssignment.builder()
-        .teacher(com.example.demo.entity.JUser.builder().id(teacherId).build()).build();
-    when(teacherAssignmentRepository.findByCourseOffering_Id(offeringId)).thenReturn(List.of(assignment));
+    var assignment =
+        com.example.demo.entity.JTeacherAssignment.builder()
+            .teacher(com.example.demo.entity.JUser.builder().id(teacherId).build())
+            .build();
+    when(teacherAssignmentRepository.findByCourseOffering_Id(offeringId))
+        .thenReturn(List.of(assignment));
 
-    var decision = gradeReadAuthorizationManager.check(() -> auth,
-        createContext("studentId", UUID.randomUUID().toString(), "courseOfferingId", offeringId.toString()));
+    var decision =
+        gradeReadAuthorizationManager.check(
+            () -> auth,
+            createContext(
+                "studentId",
+                UUID.randomUUID().toString(),
+                "courseOfferingId",
+                offeringId.toString()));
     assertTrue(decision.isGranted());
   }
 
@@ -105,27 +145,44 @@ class GradeReadAuthorizationManagerTest {
     var teacherId = UUID.randomUUID();
     var offeringId = UUID.randomUUID();
     var auth = mock(Authentication.class);
-    var principal = AppUserPrincipal.of(
-        com.example.demo.entity.JUser.builder()
-            .id(teacherId).email("teacher@test.com").password("hash").role(UserRole.TEACHER).build());
+    var principal =
+        AppUserPrincipal.of(
+            com.example.demo.entity.JUser.builder()
+                .id(teacherId)
+                .email("teacher@test.com")
+                .password("hash")
+                .role(UserRole.TEACHER)
+                .build());
     when(auth.getPrincipal()).thenReturn(principal);
     when(teacherAssignmentRepository.findByCourseOffering_Id(offeringId)).thenReturn(List.of());
 
-    var decision = gradeReadAuthorizationManager.check(() -> auth,
-        createContext("studentId", UUID.randomUUID().toString(), "courseOfferingId", offeringId.toString()));
+    var decision =
+        gradeReadAuthorizationManager.check(
+            () -> auth,
+            createContext(
+                "studentId",
+                UUID.randomUUID().toString(),
+                "courseOfferingId",
+                offeringId.toString()));
     assertFalse(decision.isGranted());
   }
 
   @Test
   void check_teacher_noCourseOffering() {
     var auth = mock(Authentication.class);
-    var principal = AppUserPrincipal.of(
-        com.example.demo.entity.JUser.builder()
-            .id(UUID.randomUUID()).email("teacher@test.com").password("hash").role(UserRole.TEACHER).build());
+    var principal =
+        AppUserPrincipal.of(
+            com.example.demo.entity.JUser.builder()
+                .id(UUID.randomUUID())
+                .email("teacher@test.com")
+                .password("hash")
+                .role(UserRole.TEACHER)
+                .build());
     when(auth.getPrincipal()).thenReturn(principal);
 
-    var decision = gradeReadAuthorizationManager.check(() -> auth,
-        createContext("studentId", UUID.randomUUID().toString()));
+    var decision =
+        gradeReadAuthorizationManager.check(
+            () -> auth, createContext("studentId", UUID.randomUUID().toString()));
     assertFalse(decision.isGranted());
   }
 

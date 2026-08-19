@@ -34,8 +34,8 @@ class TeacherAssignmentServiceTest {
     var teacherId = UUID.randomUUID();
     var entity = com.example.demo.entity.JTeacherAssignment.builder().id(UUID.randomUUID()).build();
     when(teacherAssignmentRepository.findByTeacher_Id(teacherId)).thenReturn(List.of(entity));
-    when(teacherAssignmentMapper.toModel(entity)).thenReturn(
-        TeacherAssignment.builder().id(entity.getId()).build());
+    when(teacherAssignmentMapper.toModel(entity))
+        .thenReturn(TeacherAssignment.builder().id(entity.getId()).build());
 
     assertEquals(1, teacherAssignmentService.findByTeacher(teacherId).size());
   }
@@ -53,13 +53,17 @@ class TeacherAssignmentServiceTest {
     var offeringId = UUID.randomUUID();
     var teacherId = UUID.randomUUID();
     when(courseOfferingRepository.existsById(offeringId)).thenReturn(true);
-    when(userRepository.findById(teacherId)).thenReturn(
-        Optional.of(com.example.demo.entity.JUser.builder()
-            .id(teacherId).role(UserRole.TEACHER).build()));
+    when(userRepository.findById(teacherId))
+        .thenReturn(
+            Optional.of(
+                com.example.demo.entity.JUser.builder()
+                    .id(teacherId)
+                    .role(UserRole.TEACHER)
+                    .build()));
     var entity = com.example.demo.entity.JTeacherAssignment.builder().id(UUID.randomUUID()).build();
     when(teacherAssignmentRepository.save(any())).thenReturn(entity);
-    when(teacherAssignmentMapper.toModel(any())).thenReturn(
-        TeacherAssignment.builder().id(entity.getId()).build());
+    when(teacherAssignmentMapper.toModel(any()))
+        .thenReturn(TeacherAssignment.builder().id(entity.getId()).build());
 
     assertNotNull(teacherAssignmentService.assign(offeringId, teacherId));
   }
@@ -67,7 +71,8 @@ class TeacherAssignmentServiceTest {
   @Test
   void assign_offeringNotFound() {
     when(courseOfferingRepository.existsById(any())).thenReturn(false);
-    assertThrows(ResourceNotFoundException.class,
+    assertThrows(
+        ResourceNotFoundException.class,
         () -> teacherAssignmentService.assign(UUID.randomUUID(), UUID.randomUUID()));
   }
 
@@ -75,16 +80,19 @@ class TeacherAssignmentServiceTest {
   void assign_teacherNotFound() {
     when(courseOfferingRepository.existsById(any())).thenReturn(true);
     when(userRepository.findById(any())).thenReturn(Optional.empty());
-    assertThrows(ResourceNotFoundException.class,
+    assertThrows(
+        ResourceNotFoundException.class,
         () -> teacherAssignmentService.assign(UUID.randomUUID(), UUID.randomUUID()));
   }
 
   @Test
   void assign_notATeacher() {
     when(courseOfferingRepository.existsById(any())).thenReturn(true);
-    when(userRepository.findById(any())).thenReturn(
-        Optional.of(com.example.demo.entity.JUser.builder().role(UserRole.STUDENT).build()));
-    assertThrows(BadRequestException.class,
+    when(userRepository.findById(any()))
+        .thenReturn(
+            Optional.of(com.example.demo.entity.JUser.builder().role(UserRole.STUDENT).build()));
+    assertThrows(
+        BadRequestException.class,
         () -> teacherAssignmentService.assign(UUID.randomUUID(), UUID.randomUUID()));
   }
 

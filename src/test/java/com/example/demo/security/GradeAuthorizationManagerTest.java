@@ -3,9 +3,6 @@ package com.example.demo.security;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-import com.example.demo.enums.UserRole;
-import com.example.demo.repository.ExamSessionRepository;
-import com.example.demo.repository.TeacherAssignmentRepository;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,7 +26,9 @@ class GradeAuthorizationManagerTest {
     when(gradeAuthorizationService.canGrade(examSessionId, auth)).thenReturn(true);
 
     var request = new MockHttpServletRequest();
-    var context = new RequestAuthorizationContext(request, java.util.Map.of("examSessionId", examSessionId.toString()));
+    var context =
+        new RequestAuthorizationContext(
+            request, java.util.Map.of("examSessionId", examSessionId.toString()));
 
     assertTrue(gradeAuthorizationManager.check(() -> auth, context).isGranted());
   }
@@ -41,7 +40,9 @@ class GradeAuthorizationManagerTest {
     when(gradeAuthorizationService.canGrade(examSessionId, auth)).thenReturn(false);
 
     var request = new MockHttpServletRequest();
-    var context = new RequestAuthorizationContext(request, java.util.Map.of("examSessionId", examSessionId.toString()));
+    var context =
+        new RequestAuthorizationContext(
+            request, java.util.Map.of("examSessionId", examSessionId.toString()));
 
     assertFalse(gradeAuthorizationManager.check(() -> auth, context).isGranted());
   }
@@ -59,7 +60,8 @@ class GradeAuthorizationManagerTest {
   void check_invalidExamSessionId() {
     var auth = mock(Authentication.class);
     var request = new MockHttpServletRequest();
-    var context = new RequestAuthorizationContext(request, java.util.Map.of("examSessionId", "not-a-uuid"));
+    var context =
+        new RequestAuthorizationContext(request, java.util.Map.of("examSessionId", "not-a-uuid"));
 
     assertFalse(gradeAuthorizationManager.check(() -> auth, context).isGranted());
   }

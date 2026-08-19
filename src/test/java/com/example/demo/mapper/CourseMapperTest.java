@@ -2,9 +2,9 @@ package com.example.demo.mapper;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.example.demo.entity.JCourse;
 import com.example.demo.enums.Semester;
 import com.example.demo.enums.Track;
-import com.example.demo.entity.JCourse;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
@@ -15,9 +15,15 @@ class CourseMapperTest {
   @Test
   void toModelAndBack() {
     var id = UUID.randomUUID();
-    var entity = JCourse.builder()
-        .id(id).ref("PROG1").title("Programmation 1")
-        .creditCount(6).track(Track.TRONC_COMMUN).semester(Semester.S1).build();
+    var entity =
+        JCourse.builder()
+            .id(id)
+            .ref("PROG1")
+            .title("Programmation 1")
+            .creditCount(6)
+            .track(Track.TRONC_COMMUN)
+            .semester(Semester.S1)
+            .build();
 
     var model = courseMapper.toModel(entity);
 

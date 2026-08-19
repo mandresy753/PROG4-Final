@@ -31,11 +31,14 @@ class ExamServiceTest {
   void findByCourseOffering() {
     var offeringId = UUID.randomUUID();
     when(courseOfferingRepository.existsById(offeringId)).thenReturn(true);
-    var entity = com.example.demo.entity.JExam.builder()
-        .id(UUID.randomUUID()).coefficient(new BigDecimal("0.4")).build();
+    var entity =
+        com.example.demo.entity.JExam.builder()
+            .id(UUID.randomUUID())
+            .coefficient(new BigDecimal("0.4"))
+            .build();
     when(examRepository.findByCourseOffering_Id(offeringId)).thenReturn(List.of(entity));
-    when(examMapper.toModel(entity)).thenReturn(
-        Exam.builder().id(entity.getId()).coefficient(new BigDecimal("0.4")).build());
+    when(examMapper.toModel(entity))
+        .thenReturn(Exam.builder().id(entity.getId()).coefficient(new BigDecimal("0.4")).build());
 
     assertEquals(1, examService.findByCourseOffering(offeringId).size());
   }
@@ -43,16 +46,22 @@ class ExamServiceTest {
   @Test
   void findByCourseOffering_notFound() {
     when(courseOfferingRepository.existsById(any())).thenReturn(false);
-    assertThrows(ResourceNotFoundException.class,
-        () -> examService.findByCourseOffering(UUID.randomUUID()));
+    assertThrows(
+        ResourceNotFoundException.class, () -> examService.findByCourseOffering(UUID.randomUUID()));
   }
 
   @Test
   void findById_found() {
     var id = UUID.randomUUID();
-    when(examRepository.findById(id)).thenReturn(
-        Optional.of(com.example.demo.entity.JExam.builder().id(id).coefficient(new BigDecimal("0.4")).build()));
-    when(examMapper.toModel(any())).thenReturn(Exam.builder().id(id).coefficient(new BigDecimal("0.4")).build());
+    when(examRepository.findById(id))
+        .thenReturn(
+            Optional.of(
+                com.example.demo.entity.JExam.builder()
+                    .id(id)
+                    .coefficient(new BigDecimal("0.4"))
+                    .build()));
+    when(examMapper.toModel(any()))
+        .thenReturn(Exam.builder().id(id).coefficient(new BigDecimal("0.4")).build());
 
     assertNotNull(examService.findById(id));
   }
@@ -68,10 +77,14 @@ class ExamServiceTest {
     var offeringId = UUID.randomUUID();
     when(courseOfferingRepository.existsById(offeringId)).thenReturn(true);
     when(examRepository.findByCourseOffering_Id(offeringId)).thenReturn(List.of());
-    var entity = com.example.demo.entity.JExam.builder()
-        .id(UUID.randomUUID()).coefficient(new BigDecimal("0.4")).build();
+    var entity =
+        com.example.demo.entity.JExam.builder()
+            .id(UUID.randomUUID())
+            .coefficient(new BigDecimal("0.4"))
+            .build();
     when(examRepository.save(any())).thenReturn(entity);
-    when(examMapper.toModel(any())).thenReturn(Exam.builder().id(entity.getId()).coefficient(new BigDecimal("0.4")).build());
+    when(examMapper.toModel(any()))
+        .thenReturn(Exam.builder().id(entity.getId()).coefficient(new BigDecimal("0.4")).build());
 
     assertNotNull(examService.create(offeringId, new BigDecimal("0.4")));
   }
@@ -80,39 +93,40 @@ class ExamServiceTest {
   void create_coefficientExceeds1() {
     var offeringId = UUID.randomUUID();
     when(courseOfferingRepository.existsById(offeringId)).thenReturn(true);
-    var existing = com.example.demo.entity.JExam.builder()
-        .coefficient(new BigDecimal("0.8")).build();
+    var existing =
+        com.example.demo.entity.JExam.builder().coefficient(new BigDecimal("0.8")).build();
     when(examRepository.findByCourseOffering_Id(offeringId)).thenReturn(List.of(existing));
 
-    assertThrows(BadRequestException.class,
-        () -> examService.create(offeringId, new BigDecimal("0.4")));
+    assertThrows(
+        BadRequestException.class, () -> examService.create(offeringId, new BigDecimal("0.4")));
   }
 
   @Test
   void create_nullCoefficient() {
     when(courseOfferingRepository.existsById(any())).thenReturn(true);
-    assertThrows(BadRequestException.class,
-        () -> examService.create(UUID.randomUUID(), null));
+    assertThrows(BadRequestException.class, () -> examService.create(UUID.randomUUID(), null));
   }
 
   @Test
   void create_zeroCoefficient() {
     when(courseOfferingRepository.existsById(any())).thenReturn(true);
-    assertThrows(BadRequestException.class,
-        () -> examService.create(UUID.randomUUID(), BigDecimal.ZERO));
+    assertThrows(
+        BadRequestException.class, () -> examService.create(UUID.randomUUID(), BigDecimal.ZERO));
   }
 
   @Test
   void create_negativeCoefficient() {
     when(courseOfferingRepository.existsById(any())).thenReturn(true);
-    assertThrows(BadRequestException.class,
+    assertThrows(
+        BadRequestException.class,
         () -> examService.create(UUID.randomUUID(), new BigDecimal("-1")));
   }
 
   @Test
   void create_offeringNotFound() {
     when(courseOfferingRepository.existsById(any())).thenReturn(false);
-    assertThrows(ResourceNotFoundException.class,
+    assertThrows(
+        ResourceNotFoundException.class,
         () -> examService.create(UUID.randomUUID(), new BigDecimal("0.4")));
   }
 

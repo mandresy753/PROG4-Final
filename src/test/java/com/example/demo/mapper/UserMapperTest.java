@@ -2,9 +2,8 @@ package com.example.demo.mapper;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.example.demo.enums.UserRole;
 import com.example.demo.entity.JUser;
-import com.example.demo.model.User;
+import com.example.demo.enums.UserRole;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
@@ -15,9 +14,16 @@ class UserMapperTest {
   @Test
   void toModelAndBack() {
     var id = UUID.randomUUID();
-    var entity = JUser.builder()
-        .id(id).reference("STD0001").lastName("Rakoto").firstName("Jean")
-        .email("jean@test.com").password("hash").role(UserRole.STUDENT).build();
+    var entity =
+        JUser.builder()
+            .id(id)
+            .reference("STD0001")
+            .lastName("Rakoto")
+            .firstName("Jean")
+            .email("jean@test.com")
+            .password("hash")
+            .role(UserRole.STUDENT)
+            .build();
 
     var model = userMapper.toModel(entity);
 

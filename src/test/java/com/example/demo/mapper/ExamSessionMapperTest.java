@@ -2,9 +2,9 @@ package com.example.demo.mapper;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.example.demo.entity.*;
 import com.example.demo.enums.Semester;
 import com.example.demo.enums.Track;
-import com.example.demo.entity.*;
 import com.example.demo.enums.UserRole;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -18,7 +18,9 @@ class ExamSessionMapperTest {
 
   private final ExamSessionMapper examSessionMapper =
       new ExamSessionMapper(
-          new ExamMapper(new CourseOfferingMapper(new CourseMapper(), new AcademicYearMapper(), new GroupMapper())),
+          new ExamMapper(
+              new CourseOfferingMapper(
+                  new CourseMapper(), new AcademicYearMapper(), new GroupMapper())),
           new UserMapper(),
           new GroupMapper());
 
@@ -56,7 +58,8 @@ class ExamSessionMapperTest {
             .academicYear(year)
             .groups(new HashSet<>(Set.of(group)))
             .build();
-    var exam = JExam.builder().id(examId).courseOffering(offering).coefficient(BigDecimal.ONE).build();
+    var exam =
+        JExam.builder().id(examId).courseOffering(offering).coefficient(BigDecimal.ONE).build();
     var teacher =
         JUser.builder()
             .id(teacherId)
@@ -120,7 +123,12 @@ class ExamSessionMapperTest {
             .academicYear(year)
             .groups(new HashSet<>(Set.of(group)))
             .build();
-    var exam = JExam.builder().id(examId).courseOffering(offering).coefficient(new BigDecimal("0.4")).build();
+    var exam =
+        JExam.builder()
+            .id(examId)
+            .courseOffering(offering)
+            .coefficient(new BigDecimal("0.4"))
+            .build();
     var entity =
         JExamSession.builder()
             .id(id)

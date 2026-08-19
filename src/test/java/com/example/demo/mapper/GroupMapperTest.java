@@ -2,9 +2,8 @@ package com.example.demo.mapper;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.example.demo.enums.Track;
 import com.example.demo.entity.JGroup;
-import com.example.demo.model.Group;
+import com.example.demo.enums.Track;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 

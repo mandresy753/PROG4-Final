@@ -6,7 +6,6 @@ import static org.mockito.Mockito.*;
 import com.example.demo.enums.UserRole;
 import com.example.demo.security.authorization.SelfOrAdminAuthorizationManager;
 import com.example.demo.security.authorization.SelfOrStaffAuthorizationManager;
-import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,9 +23,14 @@ class AuthorizationManagersTest {
 
   private Authentication mockAuth(UserRole role, UUID id) {
     var auth = mock(Authentication.class);
-    var principal = AppUserPrincipal.of(
-        com.example.demo.entity.JUser.builder()
-            .id(id).email("test@test.com").password("hash").role(role).build());
+    var principal =
+        AppUserPrincipal.of(
+            com.example.demo.entity.JUser.builder()
+                .id(id)
+                .email("test@test.com")
+                .password("hash")
+                .role(role)
+                .build());
     when(auth.getPrincipal()).thenReturn(principal);
     return auth;
   }
@@ -45,7 +49,8 @@ class AuthorizationManagersTest {
     var id = UUID.randomUUID();
     var auth = mockAuth(UserRole.STUDENT, id);
     var request = new MockHttpServletRequest();
-    var context = new RequestAuthorizationContext(request, java.util.Map.of("studentId", id.toString()));
+    var context =
+        new RequestAuthorizationContext(request, java.util.Map.of("studentId", id.toString()));
     assertTrue(selfOrAdminManager.check(() -> auth, context).isGranted());
   }
 
@@ -53,7 +58,9 @@ class AuthorizationManagersTest {
   void selfOrAdmin_student_otherData() {
     var auth = mockAuth(UserRole.STUDENT, UUID.randomUUID());
     var request = new MockHttpServletRequest();
-    var context = new RequestAuthorizationContext(request, java.util.Map.of("studentId", UUID.randomUUID().toString()));
+    var context =
+        new RequestAuthorizationContext(
+            request, java.util.Map.of("studentId", UUID.randomUUID().toString()));
     assertFalse(selfOrAdminManager.check(() -> auth, context).isGranted());
   }
 

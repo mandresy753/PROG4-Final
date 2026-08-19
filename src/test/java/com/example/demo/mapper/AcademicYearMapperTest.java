@@ -3,7 +3,6 @@ package com.example.demo.mapper;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.example.demo.entity.JAcademicYear;
-import com.example.demo.model.AcademicYear;
 import java.time.LocalDate;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
@@ -15,9 +14,13 @@ class AcademicYearMapperTest {
   @Test
   void toModelAndBack() {
     var id = UUID.randomUUID();
-    var entity = JAcademicYear.builder()
-        .id(id).label("2025-2026")
-        .startDate(LocalDate.of(2025, 9, 1)).endDate(LocalDate.of(2026, 7, 31)).build();
+    var entity =
+        JAcademicYear.builder()
+            .id(id)
+            .label("2025-2026")
+            .startDate(LocalDate.of(2025, 9, 1))
+            .endDate(LocalDate.of(2026, 7, 31))
+            .build();
 
     var model = academicYearMapper.toModel(entity);
 

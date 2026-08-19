@@ -34,19 +34,28 @@ class TranscriptEmailRequestedServiceTest {
     var studentId = UUID.randomUUID();
     var event = TranscriptEmailRequested.builder().studentId(studentId).build();
 
-    var student = User.builder()
-        .id(studentId).lastName("Rakoto").firstName("Jean")
-        .email("jean@test.com").build();
-    var transcript = FullTranscript.builder()
-        .student(student).years(List.of())
-        .overallAverage(null).totalCredits(0)
-        .status(TranscriptStatus.PROVISIONAL).build();
+    var student =
+        User.builder()
+            .id(studentId)
+            .lastName("Rakoto")
+            .firstName("Jean")
+            .email("jean@test.com")
+            .build();
+    var transcript =
+        FullTranscript.builder()
+            .student(student)
+            .years(List.of())
+            .overallAverage(null)
+            .totalCredits(0)
+            .status(TranscriptStatus.PROVISIONAL)
+            .build();
     when(transcriptService.fullTranscript(studentId)).thenReturn(transcript);
 
     var pdfFile = mock(File.class);
     when(transcriptPdfGenerator.generate(transcript)).thenReturn(pdfFile);
     when(bucketComponent.upload(any(), anyString())).thenReturn(null);
-    when(bucketComponent.presign(anyString(), any())).thenReturn(new URL("https://s3.example.com/transcript.pdf"));
+    when(bucketComponent.presign(anyString(), any()))
+        .thenReturn(new URL("https://s3.example.com/transcript.pdf"));
 
     transcriptEmailRequestedService.accept(event);
 

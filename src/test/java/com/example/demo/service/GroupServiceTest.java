@@ -68,8 +68,12 @@ class GroupServiceTest {
 
   @Test
   void create() {
-    when(groupMapper.toEntity(any())).thenReturn(
-        com.example.demo.entity.JGroup.builder().reference("K1").track(Track.TRONC_COMMUN).build());
+    when(groupMapper.toEntity(any()))
+        .thenReturn(
+            com.example.demo.entity.JGroup.builder()
+                .reference("K1")
+                .track(Track.TRONC_COMMUN)
+                .build());
     var saved =
         com.example.demo.entity.JGroup.builder()
             .id(UUID.randomUUID())
@@ -88,10 +92,19 @@ class GroupServiceTest {
   void update() {
     var id = UUID.randomUUID();
     when(groupRepository.existsById(id)).thenReturn(true);
-    when(groupMapper.toEntity(any())).thenReturn(
-        com.example.demo.entity.JGroup.builder().id(id).reference("K1").track(Track.TRONC_COMMUN).build());
+    when(groupMapper.toEntity(any()))
+        .thenReturn(
+            com.example.demo.entity.JGroup.builder()
+                .id(id)
+                .reference("K1")
+                .track(Track.TRONC_COMMUN)
+                .build());
     var saved =
-        com.example.demo.entity.JGroup.builder().id(id).reference("K1").track(Track.TRONC_COMMUN).build();
+        com.example.demo.entity.JGroup.builder()
+            .id(id)
+            .reference("K1")
+            .track(Track.TRONC_COMMUN)
+            .build();
     when(groupRepository.save(any())).thenReturn(saved);
     when(groupMapper.toModel(saved)).thenReturn(buildGroup(id));
 

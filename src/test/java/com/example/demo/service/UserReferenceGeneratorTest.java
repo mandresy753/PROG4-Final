@@ -28,8 +28,7 @@ class UserReferenceGeneratorTest {
 
   @Test
   void generate_nextStudent() {
-    var entity =
-        com.example.demo.entity.JUser.builder().reference("STD0005").build();
+    var entity = com.example.demo.entity.JUser.builder().reference("STD0005").build();
     when(userRepository.findFirstByReferenceStartingWithOrderByReferenceDesc("STD"))
         .thenReturn(Optional.of(entity));
 

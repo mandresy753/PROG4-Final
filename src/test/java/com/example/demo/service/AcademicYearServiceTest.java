@@ -92,7 +92,8 @@ class AcademicYearServiceTest {
   void update_notFound() {
     var id = UUID.randomUUID();
     when(academicYearRepository.existsById(id)).thenReturn(false);
-    assertThrows(ResourceNotFoundException.class, () -> academicYearService.update(id, buildYear(null)));
+    assertThrows(
+        ResourceNotFoundException.class, () -> academicYearService.update(id, buildYear(null)));
   }
 
   @Test

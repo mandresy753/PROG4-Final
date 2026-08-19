@@ -99,8 +99,15 @@ class UserServiceTest {
     when(userRepository.save(any())).thenReturn(entity);
     when(userMapper.toModel(entity)).thenReturn(buildUser(entity.getId()));
 
-    var result = userService.create(
-        User.builder().lastName("Rakoto").firstName("Jean").email("jean@test.com").password("pass").role(UserRole.STUDENT).build());
+    var result =
+        userService.create(
+            User.builder()
+                .lastName("Rakoto")
+                .firstName("Jean")
+                .email("jean@test.com")
+                .password("pass")
+                .role(UserRole.STUDENT)
+                .build());
 
     assertEquals("STD0001", result.reference());
     assertNull(result.password());
@@ -117,7 +124,16 @@ class UserServiceTest {
     when(userRepository.save(any())).thenReturn(updated);
     when(userMapper.toModel(any())).thenReturn(buildUser(id));
 
-    var result = userService.update(id, User.builder().lastName("Rakoto").firstName("Jean").email("jean@test.com").password("newpass").role(UserRole.STUDENT).build());
+    var result =
+        userService.update(
+            id,
+            User.builder()
+                .lastName("Rakoto")
+                .firstName("Jean")
+                .email("jean@test.com")
+                .password("newpass")
+                .role(UserRole.STUDENT)
+                .build());
 
     assertEquals(id, result.id());
     assertNull(result.password());
@@ -131,7 +147,16 @@ class UserServiceTest {
     when(userRepository.save(any())).thenReturn(buildEntity(id));
     when(userMapper.toModel(any())).thenReturn(buildUser(id));
 
-    var result = userService.update(id, User.builder().lastName("Rakoto").firstName("Jean").email("jean@test.com").password(null).role(UserRole.STUDENT).build());
+    var result =
+        userService.update(
+            id,
+            User.builder()
+                .lastName("Rakoto")
+                .firstName("Jean")
+                .email("jean@test.com")
+                .password(null)
+                .role(UserRole.STUDENT)
+                .build());
 
     assertEquals(id, result.id());
   }
