@@ -8,8 +8,9 @@ import com.example.demo.entity.JAcademicYear;
 import java.time.LocalDate;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
-
+@ActiveProfiles("test")
 class AcademicYearRepositoryIT extends FacadeIT {
 
   @Autowired private AcademicYearRepository repository;
