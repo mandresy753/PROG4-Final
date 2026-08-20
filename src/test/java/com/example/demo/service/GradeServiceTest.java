@@ -187,6 +187,116 @@ class GradeServiceTest {
   }
 
   @Test
+  void record_firstEntry_reasonNotRequired() {
+    var examSessionId = UUID.randomUUID();
+    var studentId = UUID.randomUUID();
+    var enteredById = UUID.randomUUID();
+    var examSession = buildExamSession(examSessionId);
+    var student = buildStudent(studentId);
+    var author = com.example.demo.entity.JUser.builder().id(enteredById).build();
+
+    when(examSessionRepository.findById(examSessionId)).thenReturn(Optional.of(examSession));
+    when(userRepository.findById(studentId)).thenReturn(Optional.of(student));
+    when(userRepository.existsById(enteredById)).thenReturn(true);
+    when(gradeRepository.existsByExamSession_IdAndStudent_Id(examSessionId, studentId))
+        .thenReturn(false);
+
+    var savedEntity =
+        com.example.demo.entity.JGrade.builder()
+            .id(UUID.randomUUID())
+            .value(new BigDecimal("15"))
+            .entryDate(LocalDateTime.now())
+            .build();
+    when(examSessionRepository.getReferenceById(examSessionId)).thenReturn(examSession);
+    when(userRepository.getReferenceById(studentId)).thenReturn(student);
+    when(userRepository.getReferenceById(enteredById)).thenReturn(author);
+    when(gradeRepository.save(any())).thenReturn(savedEntity);
+    when(gradeMapper.toModel(any()))
+        .thenReturn(Grade.builder().id(savedEntity.getId()).value(new BigDecimal("15")).build());
+
+    var result =
+        gradeService.record(examSessionId, studentId, enteredById, new BigDecimal("15"), null);
+
+    assertEquals(new BigDecimal("15"), result.value());
+  }
+
+  @Test
+  void record_correction_reasonRequired() {
+    var examSessionId = UUID.randomUUID();
+    var studentId = UUID.randomUUID();
+    var enteredById = UUID.randomUUID();
+    var examSession = buildExamSession(examSessionId);
+    var student = buildStudent(studentId);
+
+    when(examSessionRepository.findById(examSessionId)).thenReturn(Optional.of(examSession));
+    when(userRepository.findById(studentId)).thenReturn(Optional.of(student));
+    when(userRepository.existsById(enteredById)).thenReturn(true);
+    when(gradeRepository.existsByExamSession_IdAndStudent_Id(examSessionId, studentId))
+        .thenReturn(true);
+
+    assertThrows(
+        BadRequestException.class,
+        () ->
+            gradeService.record(examSessionId, studentId, enteredById, new BigDecimal("15"), null));
+  }
+
+  @Test
+  void record_correction_blankReasonRejected() {
+    var examSessionId = UUID.randomUUID();
+    var studentId = UUID.randomUUID();
+    var enteredById = UUID.randomUUID();
+    var examSession = buildExamSession(examSessionId);
+    var student = buildStudent(studentId);
+
+    when(examSessionRepository.findById(examSessionId)).thenReturn(Optional.of(examSession));
+    when(userRepository.findById(studentId)).thenReturn(Optional.of(student));
+    when(userRepository.existsById(enteredById)).thenReturn(true);
+    when(gradeRepository.existsByExamSession_IdAndStudent_Id(examSessionId, studentId))
+        .thenReturn(true);
+
+    assertThrows(
+        BadRequestException.class,
+        () ->
+            gradeService.record(
+                examSessionId, studentId, enteredById, new BigDecimal("15"), "   "));
+  }
+
+  @Test
+  void record_correction_succeedsWithReason() {
+    var examSessionId = UUID.randomUUID();
+    var studentId = UUID.randomUUID();
+    var enteredById = UUID.randomUUID();
+    var examSession = buildExamSession(examSessionId);
+    var student = buildStudent(studentId);
+    var author = com.example.demo.entity.JUser.builder().id(enteredById).build();
+
+    when(examSessionRepository.findById(examSessionId)).thenReturn(Optional.of(examSession));
+    when(userRepository.findById(studentId)).thenReturn(Optional.of(student));
+    when(userRepository.existsById(enteredById)).thenReturn(true);
+    when(gradeRepository.existsByExamSession_IdAndStudent_Id(examSessionId, studentId))
+        .thenReturn(true);
+
+    var savedEntity =
+        com.example.demo.entity.JGrade.builder()
+            .id(UUID.randomUUID())
+            .value(new BigDecimal("17"))
+            .entryDate(LocalDateTime.now())
+            .build();
+    when(examSessionRepository.getReferenceById(examSessionId)).thenReturn(examSession);
+    when(userRepository.getReferenceById(studentId)).thenReturn(student);
+    when(userRepository.getReferenceById(enteredById)).thenReturn(author);
+    when(gradeRepository.save(any())).thenReturn(savedEntity);
+    when(gradeMapper.toModel(any()))
+        .thenReturn(Grade.builder().id(savedEntity.getId()).value(new BigDecimal("17")).build());
+
+    var result =
+        gradeService.record(
+            examSessionId, studentId, enteredById, new BigDecimal("17"), "Reclamation etudiant");
+
+    assertEquals(new BigDecimal("17"), result.value());
+  }
+
+  @Test
   void record_authorNotFound() {
     var studentId = UUID.randomUUID();
     var enteredById = UUID.randomUUID();
